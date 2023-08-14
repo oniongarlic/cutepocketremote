@@ -342,6 +342,9 @@ void CameraDevice::handleVideoData(const QByteArray &data)
         m_wb=data.at(8)+(data.at(9) << 8);
         m_tint=data.at(10)+(data.at(11) << 8);
         qDebug() << "WB" << data.toHex(':') << m_wb << m_tint;
+        
+        emit wbChanged();
+        emit tintChanged();
         break;
     default:
         qDebug() << "Unknown video data" << data.toHex(':') << data.toStdString();
@@ -623,6 +626,27 @@ bool CameraDevice::shutterSpeed(qint32 shutter)
     cmd[8]=shutter & 0xff;
     cmd[9]=(shutter >> 8);
 
+    return writeCameraCommand(cmd);
+}
+
+bool CameraDevice::whiteBalance(qint16 wb, qint16 tint)
+{
+    if (tint < -50 && tint > 50)
+        return false;
+    
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x08; // Length
+    cmd[4]=0x01; // Category
+    cmd[5]=0x0C; // Param
+    cmd[6]=0x03;
+    
+    cmd[8]=wb & 0xff;
+    cmd[9]=(wb >> 8);
+    
+    cmd[10]=tint & 0xff;
+    cmd[11]=(tint >> 8);
+    
     return writeCameraCommand(cmd);
 }
 

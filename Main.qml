@@ -26,6 +26,8 @@ ApplicationWindow {
         onStatusChanged: {
             console.debug("CameraStatus is now: "+status)
         }
+        
+        property bool connectionReady: cd.connected && cd.status==3
     }
 
     header: ToolBar {
@@ -76,6 +78,12 @@ ApplicationWindow {
             Text {
                 id: zoom
                 text: cd.connected ? cd.zoom : '--'
+            }
+            Text {
+                text: cd.connected ? cd.wb+"K" : '--'
+            }
+            Text {
+                text: cd.connected ? cd.tint : '--'
             }
         }
 
