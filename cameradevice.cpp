@@ -43,8 +43,8 @@ void CameraDevice::startDeviceDiscovery()
     m_discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 
     if (m_discoveryAgent->isActive()) {
-        m_deviceScanState = true;
-        emit stateChanged();
+        m_discovering = true;
+        emit discoveringChanged();
     }
     emit discoveryStart();
 }
@@ -95,8 +95,8 @@ void CameraDevice::addCameraDevice(const QBluetoothDeviceInfo &info)
  */
 void CameraDevice::deviceScanFinished()
 {
-    m_deviceScanState = false;
-    emit stateChanged();
+    m_discovering = false;
+    emit discoveringChanged();
     if (!m_cameras.isEmpty()) {
         auto tmp=m_cameras.values();
         m_currentDevice=tmp.first();
@@ -518,10 +518,10 @@ void CameraDevice::confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const
 void CameraDevice::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error)
 {
     emit controllerErrorChanged();
+    
+    m_discovering = false;
 
-    m_deviceScanState = false;
-
-    emit stateChanged();
+    emit discoveringChanged();
 }
 
 bool CameraDevice::isConnected() const
@@ -529,9 +529,9 @@ bool CameraDevice::isConnected() const
     return m_connected;
 }
 
-bool CameraDevice::state()
+bool CameraDevice::discovering()
 {
-    return m_deviceScanState;
+    return m_discovering;
 }
 
 bool CameraDevice::hasControllerError() const

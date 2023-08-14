@@ -19,7 +19,7 @@ class CameraDevice: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool state READ state NOTIFY stateChanged)
+    Q_PROPERTY(bool disocvering READ discovering NOTIFY discoveringChanged)
     Q_PROPERTY(bool controllerError READ hasControllerError NOTIFY controllerErrorChanged)
 
     Q_PROPERTY(bool recording READ recording NOTIFY recordingChanged)
@@ -44,18 +44,11 @@ public:
     CameraDevice();
     ~CameraDevice();
     QVariant getDevices();
-    QVariant getServices();
-    QVariant getCharacteristics();
-    QString getUpdate();
 
     bool isConnected() const;
 
-    bool state();
+    bool discovering();
     bool hasControllerError() const;
-
-    bool isRandomAddress() const;
-    void setRandomAddress(bool newValue);
-
 
     bool recording() const;
 
@@ -74,11 +67,6 @@ public:
 public slots:
     void startDeviceDiscovery();
     void stopDeviceDiscovery();
-    void scanServices(const QString &address);
-    void scanServices(const QBluetoothDeviceInfo &device);
-
-    void connectToService(const QString &uuid);
-    void disconnectFromDevice();
 
     bool autoFocus();
     bool autoAperture();
@@ -92,6 +80,12 @@ public slots:
     bool captureStill();
 
 private slots:
+    void scanServices(const QString &address);
+    void scanServices(const QBluetoothDeviceInfo &device);
+    
+    void connectToService(const QString &uuid);
+    void disconnectFromDevice();
+    
     void addCameraDevice(const QBluetoothDeviceInfo&);
     void deviceScanFinished();
     void deviceScanError(QBluetoothDeviceDiscoveryAgent::Error);
@@ -111,7 +105,7 @@ private slots:
 Q_SIGNALS:
     void devicesUpdated();        
     void updateChanged();
-    void stateChanged();
+    void discoveringChanged();
     void disconnected();
 
     void discoveryStart();
@@ -162,8 +156,8 @@ private:
     QLowEnergyController *m_controller = nullptr;
     QLowEnergyService *m_cameraService = nullptr;
     QLowEnergyCharacteristic *m_cameraOutgoing = nullptr;
-
-    bool m_deviceScanState = false;
+    
+    bool m_discovering = false;
 
     // Camera state
     QString m_name;

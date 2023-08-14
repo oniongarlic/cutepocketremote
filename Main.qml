@@ -13,6 +13,19 @@ ApplicationWindow {
 
     CameraDevice {
         id: cd
+        onDiscoveryStart: {
+            
+        }
+        onDiscoveryStop: {
+            if (devices==0)
+                cameraName.text="No cameras found!"
+            eles
+                cameraName.text="Found "+devices
+        }
+
+        onStatusChanged: {
+            console.debug("CameraStatus is now: "+status)
+        }
     }
 
     header: ToolBar {
@@ -126,5 +139,12 @@ ApplicationWindow {
                 }
             }
         }
+    }
+    
+    ProgressBar {
+        id: discoveringProgress
+        anchors.centerIn: parent
+        indeterminate: visible
+        visible: cd.disocvering && !cd.connected
     }
 }
