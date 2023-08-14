@@ -16,10 +16,10 @@ ApplicationWindow {
         onDiscoveryStart: {
             
         }
-        onDiscoveryStop: {
+        onDiscoveryStop: (devices) => {
             if (devices==0)
                 cameraName.text="No cameras found!"
-            eles
+            else
                 cameraName.text="Found "+devices
         }
 
