@@ -154,6 +154,33 @@ ApplicationWindow {
                     cd.gain(value)
                 }
             }
+            
+            RowLayout {
+                Slider {
+                    id: sliderWb
+                    Layout.fillWidth: true
+                    enabled: cd.connected
+                    from: 2500
+                    to: 10000
+                    value: 4600
+                    stepSize: 100
+                    live: false
+                    wheelEnabled: true
+                    onValueChanged: {
+                        cd.whiteBalance(value, spintTint.value)
+                    }
+                }
+                SpinBox {
+                    id: spinTint
+                    from: -10
+                    to: 10
+                    value: 0
+                    onValueChanged: {
+                        cd.whiteBalance(sliderWb.value, value)
+                    }
+                }
+            }
+            
         }
     }
     

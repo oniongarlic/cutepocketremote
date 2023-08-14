@@ -63,7 +63,7 @@ public:
     QString name() const;
 
     int zoom() const;
-
+    
 public slots:
     void startDeviceDiscovery();
     void stopDeviceDiscovery();
@@ -80,7 +80,9 @@ public slots:
     bool record(bool record);
     bool play(bool play);
     bool captureStill();
-
+    
+    bool whiteBalance(qint16 wb, qint16 tint);
+    
 private slots:
     void scanServices(const QString &address);
     void scanServices(const QBluetoothDeviceInfo &device);
