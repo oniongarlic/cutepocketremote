@@ -67,6 +67,8 @@ public:
 public slots:
     void startDeviceDiscovery();
     void stopDeviceDiscovery();
+    
+    void disconnectFromDevice();
 
     bool autoFocus();
     bool autoAperture();
@@ -84,7 +86,6 @@ private slots:
     void scanServices(const QBluetoothDeviceInfo &device);
     
     void connectToService(const QString &uuid);
-    void disconnectFromDevice();
     
     void addCameraDevice(const QBluetoothDeviceInfo&);
     void deviceScanFinished();

@@ -87,30 +87,36 @@ ApplicationWindow {
             anchors.fill: parent
             RowLayout {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                Layout.minimumHeight: 200
+                Layout.maximumHeight: 300
+                spacing: 16
                 RoundButton {
-                    //Layout.fillWidth: true
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     text: "Record"
-                    width: 64
-                    height: width
                     enabled: cd.connected && !cd.recording
                     onClicked: cd.record(true)
                 }
                 RoundButton {
-                    //Layout.fillWidth: true
-                    width: 64
-                    height: width
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     text: "Stop"
                     enabled: cd.connected && cd.recording
                     onClicked: cd.record(false)
                 }
                 RoundButton {
-                    //Layout.fillWidth: true
-                    width: 64
-                    height: width
-                    text: "Focus"
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    text: "AutoFocus"
                     enabled: cd.connected
                     onClicked: cd.autoFocus()
+                }
+                RoundButton {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    text: "AutoAperture"
+                    enabled: cd.connected
+                    onClicked: cd.autoAperture()
                 }
             }
 
@@ -122,6 +128,7 @@ ApplicationWindow {
                 value: 30
                 stepSize: 1
                 live: false
+                wheelEnabled: true
                 onValueChanged: {
                     cd.shutterSpeed(value)
                 }
@@ -134,6 +141,7 @@ ApplicationWindow {
                 value: 0
                 stepSize: 1
                 live: false
+                wheelEnabled: true
                 onValueChanged: {
                     cd.gain(value)
                 }
