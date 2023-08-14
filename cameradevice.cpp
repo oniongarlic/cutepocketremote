@@ -611,6 +611,28 @@ bool CameraDevice::autoAperture()
     return writeCameraCommand(cmd);
 }
 
+bool CameraDevice::autoWhitebalance()
+{
+    QByteArray cmd(8, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x04; // Length
+    cmd[4]=0x01; // Category
+    cmd[5]=0x03; // Param
+    
+    return writeCameraCommand(cmd);
+}
+
+bool CameraDevice::restoreAutoWhiteBalance()
+{
+    QByteArray cmd(8, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x04; // Length
+    cmd[4]=0x01; // Category
+    cmd[5]=0x04; // Param
+    
+    return writeCameraCommand(cmd);
+}
+
 bool CameraDevice::shutterSpeed(qint32 shutter)
 {
     if (shutter < 24 && shutter > 5000)
