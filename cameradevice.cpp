@@ -441,6 +441,32 @@ void CameraDevice::handleColorData(const QByteArray &data)
 }
 
 /**
+ * @brief CameraDevice::handleStatusData
+ * @param data
+ */
+void CameraDevice::handleStatusData(const QByteArray &data)
+{
+    switch (data.at(5)) {
+    case 0: // ?
+    {
+        uint8_t ticker=data.at(8);
+        uint8_t charge=data.at(9);
+        uint8_t power=data.at(12); // 1b=ac/psu, 0b=volt/psu, 19=volt/battery, 09=no/psu
+        
+        qDebug() << "Status" << ticker << power << data.toHex(':');
+    }
+        break;
+    case 1: // USB-C attach + size ?
+        break;
+    case 2: // Time left?
+        break;
+    default:
+        qDebug() << "handleStatusData" << data.toHex(':');
+    }
+}
+
+
+/**
  * @brief CameraDevice::handleMetaData
  * @param data
  */
@@ -491,8 +517,8 @@ void CameraDevice::characteristicChanged(QLowEnergyCharacteristic characteristic
         case 8: // Color correction
             handleColorData(value);
             break;
-        case 9: // Undocumented, power related ?
-            qDebug() << "Unknown" << value.toHex(':');
+        case 9: // Undocumented, status/power related ?
+            handleStatusData(value);
             break;
         case 10: // Media
             handleMediaData(value);
