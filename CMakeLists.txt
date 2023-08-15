@@ -18,6 +18,7 @@ qt_add_qml_module(appCutePocketRemote
     QML_FILES Main.qml
     SOURCES cameradevice.cpp
     SOURCES cameradevice.h
+    SOURCES cameratypes.h
 )
 
 target_link_libraries(appCutePocketRemote PUBLIC
