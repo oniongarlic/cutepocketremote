@@ -165,9 +165,10 @@ ApplicationWindow {
                     value: 4600
                     stepSize: 100
                     live: false
+                    snapMode: Slider.SnapAlways
                     wheelEnabled: true
                     onValueChanged: {
-                        cd.whiteBalance(value, spintTint.value)
+                        cd.whiteBalance(value, spinTint.value)
                     }
                 }
                 SpinBox {
@@ -175,9 +176,17 @@ ApplicationWindow {
                     from: -10
                     to: 10
                     value: 0
-                    onValueChanged: {
+                    onValueModified: {
                         cd.whiteBalance(sliderWb.value, value)
                     }
+                }
+                Button {
+                    text: "Auto"
+                    onClicked: cd.autoWhitebalance();
+                }
+                Button {
+                    text: "Restore"
+                    onClicked: cd.restoreAutoWhiteBalance()
                 }
             }
             

@@ -1,4 +1,7 @@
 #include "cameradevice.h"
+#include "cameratypes.h"
+
+#include <QLowEnergyCharacteristic>
 
 // Services that BM camera should have
 static const QBluetoothUuid GenericService("00001800-0000-1000-8000-00805f9b34fb");
@@ -11,7 +14,6 @@ static const QBluetoothUuid IncomingCameraControl("B864E140-76A0-416A-BF30-58765
 static const QBluetoothUuid Timecode("6D8F2110-86F1-41BF-9AFB-451D87E976C8");
 static const QBluetoothUuid CameraStatus("7FE8691D-95DC-4FC5-8ABD-CA74339B51B9");
 static const QBluetoothUuid DeviceName("FFAC0C52-C9FB-41A0-B063-CC76282EB89C");
-
 
 CameraDevice::CameraDevice()
 {
@@ -246,11 +248,17 @@ void CameraDevice::deviceDisconnected()
 
 void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newState)
 {
-    qDebug() << "serviceDetailsDiscovered";
+    qDebug() << "serviceDetailsDiscovered" << newState;
 
     auto service = qobject_cast<QLowEnergyService *>(sender());
-    if (!service)
+    if (!service) {
+        qDebug() << "... invalid service?";
         return;
+    }
+    
+    if (service->state()==QLowEnergyService::RemoteServiceDiscovering) {
+        return;
+    }
 
     const QList<QLowEnergyCharacteristic> chars = service->characteristics();
     qDebug() << "Service: " << service->serviceName() << service->serviceUuid();    
@@ -263,7 +271,6 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
 
     for (const QLowEnergyCharacteristic &ch : chars) {
         qDebug() << "QLowEnergyCharacteristic" << ch.uuid() << ch.value().toHex(':');
-        auto cInfo = new QLowEnergyCharacteristic(ch);       
 
         QLowEnergyDescriptor desc = ch.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
 
@@ -273,19 +280,15 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
         }
 
         uint permission = ch.properties();
-        if ((permission & QLowEnergyCharacteristic::Notify) || (permission & QLowEnergyCharacteristic::Indicate)) {
+        if ((permission & QLowEnergyCharacteristic::Notify)) {
             qDebug() << "Enabling notifications for " << ch.uuid() << ch.value().toHex(':');
-
-            if (desc.isValid()) {
-                service->writeDescriptor(desc, QByteArray::fromHex("0100"));
-                qDebug() << "...done (?)";
-            } else {
-                qDebug() << "Invalid ?" << desc.name();
-            }
+            service->writeDescriptor(desc, QLowEnergyCharacteristic::CCCDEnableNotification);
+        } else if (permission & QLowEnergyCharacteristic::Indicate) {
+            qDebug() << "Enabling indications for " << ch.uuid() << ch.value().toHex(':');
+            service->writeDescriptor(desc, QLowEnergyCharacteristic::CCCDEnableIndication);
         } else if (permission & QLowEnergyCharacteristic::Write) {
-            qDebug() << "WriteCh" << ch.uuid();
+            qDebug() << "WriteCharacteristics" << ch.uuid();
         }
-
     }
 }
 
@@ -304,7 +307,7 @@ void CameraDevice::handleLensData(const QByteArray &data)
         break;
     case 2: // Aperture f-stop
     {
-        uint16_t v = data[8] + (data[9] << 8);
+        uint16_t v =  CutePocket::uint16at(data, 8);
 
         m_aperture = sqrt(pow(2.0f, ((double)(v) / 2048.0f)));
         qDebug() << "Aperture f" << data.toHex(':') << v << m_aperture;
@@ -312,13 +315,13 @@ void CameraDevice::handleLensData(const QByteArray &data)
         break;
     case 3: // Aperture normalized
     {
-        uint16_t v = data[8] + (data[9] << 8);
+        uint16_t v = CutePocket::uint16at(data, 8); // data[8] + (data[9] << 8);
 
         qDebug() << "Aperture norm" << data.toHex(':') << v;
     }
     break;
     case 7: // Zoom
-        m_zoom=data.at(8)+(data.at(9) << 8);
+        m_zoom= CutePocket::uint16at(data, 8);
         emit zoomChanged();
         qDebug() << "Zoom" << data.toHex(':') << m_zoom;
         break;
@@ -660,7 +663,7 @@ bool CameraDevice::whiteBalance(qint16 wb, qint16 tint)
     cmd[0]=0xff; // Destination
     cmd[1]=0x08; // Length
     cmd[4]=0x01; // Category
-    cmd[5]=0x0C; // Param
+    cmd[5]=0x02; // Param
     cmd[6]=0x03;
     
     cmd[8]=wb & 0xff;
