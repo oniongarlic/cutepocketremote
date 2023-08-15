@@ -220,7 +220,13 @@ void CameraDevice::deviceConnected()
 
 void CameraDevice::errorReceived(QLowEnergyController::Error error)
 {
-    qDebug() << "errorReceived" << error << m_controller->errorString();
+    switch (error) {
+    case QLowEnergyController::RemoteHostClosedError:
+        deviceDisconnected();
+        break;
+    default:
+        qDebug() << "errorReceived" << error << m_controller->errorString();    
+    }
 }
 
 void CameraDevice::disconnectFromDevice()
@@ -241,7 +247,8 @@ void CameraDevice::deviceDisconnected()
 
     m_name="";
     emit nameChanged();
-
+    
+    m_connected=false;
     emit connectedChanged();
     emit disconnected();
 }
@@ -259,7 +266,12 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
     if (service->state()==QLowEnergyService::RemoteServiceDiscovering) {
         return;
     }
-
+    
+    if (service->state()==QLowEnergyService::InvalidService) {
+        qDebug() << "Invalid service, disconnected from device ?";
+        return;
+    }
+    
     const QList<QLowEnergyCharacteristic> chars = service->characteristics();
     qDebug() << "Service: " << service->serviceName() << service->serviceUuid();    
 

@@ -142,6 +142,7 @@ protected:
     void handleReferenceData(const QByteArray &data);
     void handleConfigData(const QByteArray &data);
     void handleColorData(const QByteArray &data);
+    void handleStatusData(const QByteArray &data);    
     void handleMetaData(const QByteArray &data);
 
 private:
