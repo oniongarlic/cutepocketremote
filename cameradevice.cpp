@@ -224,6 +224,9 @@ void CameraDevice::errorReceived(QLowEnergyController::Error error)
     case QLowEnergyController::RemoteHostClosedError:
         deviceDisconnected();
         break;
+    case QLowEnergyController::ConnectionError:
+        emit connectionFailure();
+        break;
     default:
         qDebug() << "errorReceived" << error << m_controller->errorString();    
     }
@@ -315,7 +318,7 @@ void CameraDevice::handleLensData(const QByteArray &data)
         qDebug() << "Focus" << data.toHex(':');
         break;
     case 1:
-        qDebug() << "AutoFocus triggered";
+        qDebug() << "AutoFocus triggered" << data.toHex(':');
         break;
     case 2: // Aperture f-stop
     {

@@ -112,6 +112,8 @@ Q_SIGNALS:
     void updateChanged();
     void discoveringChanged();
     void disconnected();
+    
+    void connectionFailure();
 
     void discoveryStart();
     void discoveryStop(qsizetype devices);
