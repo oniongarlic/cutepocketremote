@@ -14,17 +14,29 @@ ApplicationWindow {
     CameraDevice {
         id: cd
         onDiscoveryStart: {
-            
+            cameraStatus.text='Connecting...'
         }
         onDiscoveryStop: (devices) => {
             if (devices==0)
-                cameraName.text="No cameras found!"
+                cameraStatus.text="No cameras found!"
             else
-                cameraName.text="Found "+devices
+                cameraStatus.text="Found "+devices
         }
 
         onStatusChanged: {
             console.debug("CameraStatus is now: "+status)
+            switch (status) {
+            case 1:
+                cameraStatus.text="Connected"
+                break;
+            case 3:
+                cameraStatus.text="Ready"
+                break;
+            }
+        }
+        
+        onConnectionFailure: {
+            cameraStatus.text="Failed to connect"
         }
         
         property bool connectionReady: cd.connected && cd.status==3
@@ -67,6 +79,10 @@ ApplicationWindow {
 
     footer: ToolBar {
         RowLayout {
+            Text {
+                id: cameraStatus
+                text: ''
+            }
             Text {
                 id: cameraName
                 text: cd.connected ? cd.name : 'N/A'
