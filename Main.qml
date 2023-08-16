@@ -107,6 +107,7 @@ ApplicationWindow {
             anchors.margins: 4
             spacing: 8
             RowLayout {
+                id: bc
                 Layout.fillWidth: true
                 Layout.minimumHeight: 200
                 Layout.maximumHeight: 300
@@ -116,6 +117,7 @@ ApplicationWindow {
                 enabled: cd.connectionReady
                 RoundButton {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: bc.width/4
                     Layout.preferredHeight: width
                     text: "Record"
                     enabled: !cd.recording
@@ -124,6 +126,7 @@ ApplicationWindow {
                 RoundButton {
                     Layout.fillWidth: true
                     Layout.preferredHeight: width
+                    Layout.preferredWidth: bc.width/4
                     text: "Stop"
                     enabled: cd.recording
                     onClicked: cd.record(false)
@@ -131,6 +134,7 @@ ApplicationWindow {
                 RoundButton {
                     Layout.fillWidth: true
                     Layout.preferredHeight: width
+                    Layout.preferredWidth: bc.width/4
                     text: "AutoFocus"
                     enabled: cd.connected
                     onClicked: cd.autoFocus()
@@ -138,6 +142,7 @@ ApplicationWindow {
                 RoundButton {
                     Layout.fillWidth: true
                     Layout.preferredHeight: width
+                    Layout.preferredWidth: bc.width/4
                     text: "AutoAperture"
                     enabled: cd.connected
                     onClicked: cd.autoAperture()
