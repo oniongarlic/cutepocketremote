@@ -78,14 +78,19 @@ void CameraDevice::addCameraDevice(const QBluetoothDeviceInfo &info)
     }
 
     qDebug() << "Found BM camera service!";
-    qDebug() << info.address() << info.name() << info.coreConfigurations() << info.serviceClasses() << info.serviceUuids() << info.manufacturerIds() << info.majorDeviceClass();
-
+    qDebug() << info.address() << info.name() << info.rssi() << info.coreConfigurations() << info.serviceClasses() << info.serviceUuids() << info.manufacturerIds() << info.majorDeviceClass();
+    
+    if (info.rssi()==0) {
+        qDebug("Ignoring off-line device");
+        return;
+    }
+    
     if (m_cameras.contains(info.address().toString())) {
         qDebug("Dup!");
+    } else {
+        QBluetoothDeviceInfo *device = new QBluetoothDeviceInfo(info);
+        m_cameras.insert(device->address().toString(), device);
     }
-
-    QBluetoothDeviceInfo *device = new QBluetoothDeviceInfo(info);
-    m_cameras.insert(device->address().toString(), device);
 
     emit devicesUpdated();
 }
@@ -163,8 +168,8 @@ void CameraDevice::addLowEnergyService(const QBluetoothUuid &serviceUuid)
         qWarning() << "Cannot create service for uuid";
         return;
     }
-
-    qDebug() << "Service:" << service;
+    
+    qDebug() << "Service:" << service->serviceUuid() << service->state();
 
     m_services.append(service);    
 }
@@ -468,7 +473,7 @@ void CameraDevice::handleStatusData(const QByteArray &data)
         uint8_t charge=data.at(9);
         uint8_t power=data.at(12); // 1b=ac/psu, 0b=volt/psu, 19=volt/battery, 09=no/psu
         
-        qDebug() << "Status" << ticker << power << data.toHex(':');
+        qDebug() << "Status" << ticker << power << charge << data.toHex(':');
     }
         break;
     case 1: // USB-C attach + size ?
@@ -487,7 +492,48 @@ void CameraDevice::handleStatusData(const QByteArray &data)
  */
 void CameraDevice::handleMetaData(const QByteArray &data)
 {
+    QString str;
     qDebug() << "handleMetaData" << data.toHex(':');
+    switch (data.at(5)) {
+    case 0: // Reel
+        break;
+    case 1: // Scene tags
+        break;
+    case 2: // Scene
+        break;
+    case 3: // Take
+        break;
+    case 4:
+        break;
+    case 5: // ID
+        str=data.mid(8);
+        break;
+    case 6: // Operator
+        break;
+    case 7: // Director
+        break;
+    case 8: // Name 
+        break;
+    case 9: // Lens type
+        str=data.mid(8);
+        break;
+    case 10: // Iris
+        str=data.mid(8);
+        break;
+    case 11: // Focal length
+        str=data.mid(8);
+        break;
+    case 12: // Distance
+        str=data.mid(8);
+        break;
+    case 13: // Filter
+        break;
+    case 14: // Slate mode
+        break;
+    case 15: // Slate target
+        break;
+    }
+    qDebug() << "Meta" << str;
 }
 
 static int bcdtoint(uint8_t v) { return v-6*(v >> 4); }
