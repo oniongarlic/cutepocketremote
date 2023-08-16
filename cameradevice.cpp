@@ -690,6 +690,27 @@ bool CameraDevice::autoFocus()
     return writeCameraCommand(cmd);
 }
 
+bool CameraDevice::focus(qint16 focus)
+{
+    if (focus < -2048 && focus > 2048)
+        return false;
+    
+    // https://github.com/schoolpost/BlueMagic32/issues/5#issuecomment-731750648
+    // https://forum.blackmagicdesign.com/viewtopic.php?f=12&t=139745&p=752492&hilit=relative+focus#p752492
+    // https://forum.blackmagicdesign.com/viewtopic.php?f=12&t=119495&p=656983&hilit=relative+focus#p656983
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x08; // Length
+    cmd[4]=0x00; // Category
+    cmd[5]=0x00; // Param
+    cmd[6]=0x80;
+    cmd[7]=0x01; // 0=Absolute MFT, 1=Relative EF
+    cmd[8]=focus & 0xff;
+    cmd[9]=(focus >> 8);
+    
+    return writeCameraCommand(cmd);
+}
+
 bool CameraDevice::autoAperture()
 {
     QByteArray cmd(8, 0);

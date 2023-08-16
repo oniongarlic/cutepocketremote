@@ -74,6 +74,16 @@ ApplicationWindow {
                 enabled: cd.connected && !cd.recording
                 onClicked: cd.captureStill();
             }
+            ToolButton {
+                text: "Focus -"
+                enabled: cd.connected
+                onClicked: cd.focus(-100);
+            }
+            ToolButton {
+                text: "Focus +"
+                enabled: cd.connected
+                onClicked: cd.focus(100);
+            }
         }
     }
 

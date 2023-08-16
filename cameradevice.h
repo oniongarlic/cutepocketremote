@@ -85,6 +85,7 @@ public slots:
     
     bool autoWhitebalance();
     bool restoreAutoWhiteBalance();
+    bool focus(qint16 focus);
 private slots:
     void scanServices(const QString &address);
     void scanServices(const QBluetoothDeviceInfo &device);
