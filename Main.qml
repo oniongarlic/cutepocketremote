@@ -53,35 +53,20 @@ ApplicationWindow {
                 text: "Disconnect"
                 enabled: cd.connected
                 onClicked: cd.disconnectFromDevice()
-            }
-            ToolButton {
-                text: "AF"
-                enabled: cd.connected
-                onClicked: cd.autoFocus()
-            }
-            ToolButton {
-                text: "Rec"
-                enabled: cd.connected && !cd.recording
-                onClicked: cd.record(true)
-            }
-            ToolButton {
-                text: "Stop"
-                enabled: cd.connected && cd.recording
-                onClicked: cd.record(false)
-            }
+            }           
             ToolButton {
                 text: "Capture"
-                enabled: cd.connected && !cd.recording
+                enabled: cd.connectionReady && !cd.recording
                 onClicked: cd.captureStill();
             }
             ToolButton {
                 text: "Focus -"
-                enabled: cd.connected
+                enabled: cd.connectionReady
                 onClicked: cd.focus(-100);
             }
             ToolButton {
                 text: "Focus +"
-                enabled: cd.connected
+                enabled: cd.connectionReady
                 onClicked: cd.focus(100);
             }
         }
@@ -99,17 +84,17 @@ ApplicationWindow {
             }
             Text {
                 id: timeCodeText
-                text: cd.connected ? cd.timecode : '--:--:--:--'
+                text: cd.connectionReady ? cd.timecode : '--:--:--:--'
             }
             Text {
                 id: zoom
-                text: cd.connected ? cd.zoom : '--'
+                text: cd.connectionReady ? cd.zoom : '--'
             }
             Text {
-                text: cd.connected ? cd.wb+"K" : '--'
+                text: cd.connectionReady ? cd.wb+"K" : '--'
             }
             Text {
-                text: cd.connected ? cd.tint : '--'
+                text: cd.connectionReady ? cd.tint : '--'
             }
         }
 
@@ -119,35 +104,40 @@ ApplicationWindow {
         anchors.fill: parent
         ColumnLayout {
             anchors.fill: parent
+            anchors.margins: 4
+            spacing: 8
             RowLayout {
                 Layout.fillWidth: true
                 Layout.minimumHeight: 200
                 Layout.maximumHeight: 300
-                spacing: 16
+                Layout.margins: 4
+                Layout.alignment: Qt.AlignTop
+                //spacing: 16
+                enabled: cd.connectionReady
                 RoundButton {
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: width
                     text: "Record"
-                    enabled: cd.connected && !cd.recording
+                    enabled: !cd.recording
                     onClicked: cd.record(true)
                 }
                 RoundButton {
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: width
                     text: "Stop"
-                    enabled: cd.connected && cd.recording
+                    enabled: cd.recording
                     onClicked: cd.record(false)
                 }
                 RoundButton {
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: width
                     text: "AutoFocus"
                     enabled: cd.connected
                     onClicked: cd.autoFocus()
                 }
                 RoundButton {
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: width
                     text: "AutoAperture"
                     enabled: cd.connected
                     onClicked: cd.autoAperture()
@@ -182,6 +172,7 @@ ApplicationWindow {
             }
             
             RowLayout {
+                spacing: 4
                 Slider {
                     id: sliderWb
                     Layout.fillWidth: true
@@ -202,20 +193,22 @@ ApplicationWindow {
                     from: -10
                     to: 10
                     value: 0
+                    enabled: cd.connectionReady
                     onValueModified: {
                         cd.whiteBalance(sliderWb.value, value)
                     }
                 }
                 Button {
                     text: "Auto"
+                    enabled: cd.connectionReady
                     onClicked: cd.autoWhitebalance();
                 }
                 Button {
                     text: "Restore"
+                    enabled: cd.connectionReady
                     onClicked: cd.restoreAutoWhiteBalance()
                 }
-            }
-            
+            }            
         }
     }
     
