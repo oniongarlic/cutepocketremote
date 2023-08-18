@@ -45,56 +45,57 @@ ApplicationWindow {
     header: ToolBar {
         RowLayout {
             ToolButton {
-                text: "Scan & Connect"
+                text: "Scan and &Connect"
                 enabled: !cd.connected
                 onClicked: cd.startDeviceDiscovery()
             }
             ToolButton {
-                text: "Disconnect"
+                text: "&Disconnect"
                 enabled: cd.connected
                 onClicked: cd.disconnectFromDevice()
             }           
             ToolButton {
-                text: "Capture"
+                text: "Ca&pture"
                 enabled: cd.connectionReady && !cd.recording
                 onClicked: cd.captureStill();
-            }
-            ToolButton {
-                text: "Focus -"
-                enabled: cd.connectionReady
-                onClicked: cd.focus(-100);
-            }
-            ToolButton {
-                text: "Focus +"
-                enabled: cd.connectionReady
-                onClicked: cd.focus(100);
-            }
+            }           
         }
     }
 
     footer: ToolBar {
         RowLayout {
+            anchors.fill: parent
             Text {
                 id: cameraStatus
                 text: ''
+                font.pixelSize: 24
             }
             Text {
                 id: cameraName
                 text: cd.connected ? cd.name : 'N/A'
+                font.pixelSize: 24
             }
             Text {
                 id: timeCodeText
-                text: cd.connectionReady ? cd.timecode : '--:--:--:--'
+                text: cd.connectionReady ? formatTimecode(cd.timecode) : '--:--:--.--'
+                font.pixelSize: 24
+                function formatTimecode(tc) {
+                    let tcs=tc.getHours()+':'+tc.getMinutes()+':'+tc.getSeconds()+'.'+tc.getMilliseconds()
+                    return tcs;
+                }
             }
             Text {
                 id: zoom
                 text: cd.connectionReady ? cd.zoom : '--'
+                font.pixelSize: 24
             }
             Text {
                 text: cd.connectionReady ? cd.wb+"K" : '--'
+                font.pixelSize: 24
             }
             Text {
                 text: cd.connectionReady ? cd.tint : '--'
+                font.pixelSize: 24
             }
         }
 
@@ -106,6 +107,7 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.margins: 4
             spacing: 8
+            enabled: cd.connectionReady
             RowLayout {
                 id: bc
                 Layout.fillWidth: true
@@ -113,45 +115,53 @@ ApplicationWindow {
                 Layout.maximumHeight: 300
                 Layout.margins: 4
                 Layout.alignment: Qt.AlignTop
-                //spacing: 16
-                enabled: cd.connectionReady
+                spacing: 8
                 RoundButton {
                     Layout.fillWidth: true
                     Layout.preferredWidth: bc.width/4
-                    Layout.preferredHeight: width
+                    Layout.preferredHeight: width                    
                     text: "Record"
                     enabled: !cd.recording
+                    highlighted: cd.recording
                     onClicked: cd.record(true)
                 }
                 RoundButton {
                     Layout.fillWidth: true
                     Layout.preferredHeight: width
                     Layout.preferredWidth: bc.width/4
-                    text: "Stop"
-                    enabled: cd.recording
+                    text: "Stop"                    
                     onClicked: cd.record(false)
                 }
                 RoundButton {
                     Layout.fillWidth: true
                     Layout.preferredHeight: width
                     Layout.preferredWidth: bc.width/4
-                    text: "AutoFocus"
-                    enabled: cd.connected
-                    onClicked: cd.autoFocus()
+                    text: "Auto\nAperture"
+                    onClicked: cd.autoAperture()
                 }
                 RoundButton {
                     Layout.fillWidth: true
                     Layout.preferredHeight: width
                     Layout.preferredWidth: bc.width/4
-                    text: "AutoAperture"
-                    enabled: cd.connected
-                    onClicked: cd.autoAperture()
+                    text: "Auto\nFocus"
+                    onClicked: cd.autoFocus()
+                }                
+                ColumnLayout {
+                    RoundButton {
+                        text: "Focus -"
+                        Layout.preferredHeight: width
+                        onClicked: cd.focus(-100);
+                    }
+                    RoundButton {
+                        text: "Focus +"
+                        Layout.preferredHeight: width
+                        onClicked: cd.focus(100);
+                    }
                 }
             }
 
             Slider {
-                Layout.fillWidth: true
-                enabled: cd.connected
+                Layout.fillWidth: true                
                 from: 24
                 to: 5000
                 value: 30
@@ -163,8 +173,7 @@ ApplicationWindow {
                 }
             }
             Slider {
-                Layout.fillWidth: true
-                enabled: cd.connected
+                Layout.fillWidth: true                
                 from: -128
                 to: 127
                 value: 0
@@ -180,8 +189,7 @@ ApplicationWindow {
                 spacing: 4
                 Slider {
                     id: sliderWb
-                    Layout.fillWidth: true
-                    enabled: cd.connected
+                    Layout.fillWidth: true                    
                     from: 2500
                     to: 10000
                     value: 4600
@@ -197,20 +205,17 @@ ApplicationWindow {
                     id: spinTint
                     from: -10
                     to: 10
-                    value: 0
-                    enabled: cd.connectionReady
+                    value: 0                    
                     onValueModified: {
                         cd.whiteBalance(sliderWb.value, value)
                     }
                 }
                 Button {
-                    text: "Auto"
-                    enabled: cd.connectionReady
+                    text: "Auto"                    
                     onClicked: cd.autoWhitebalance();
                 }
                 Button {
-                    text: "Restore"
-                    enabled: cd.connectionReady
+                    text: "Restore"                    
                     onClicked: cd.restoreAutoWhiteBalance()
                 }
             }            
