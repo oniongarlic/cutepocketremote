@@ -23,6 +23,7 @@ class CameraDevice: public QObject
     Q_PROPERTY(bool controllerError READ hasControllerError NOTIFY controllerErrorChanged)
 
     Q_PROPERTY(bool recording READ recording NOTIFY recordingChanged)
+    Q_PROPERTY(bool playing READ playing NOTIFY playingChanged)
 
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
 
@@ -32,6 +33,8 @@ class CameraDevice: public QObject
 
     Q_PROPERTY(int wb READ wb NOTIFY wbChanged)
     Q_PROPERTY(int tint READ tint NOTIFY tintChanged)
+
+    Q_PROPERTY(double aperture READ apterture NOTIFY apertureChanged)
 
     Q_PROPERTY(int zoom READ zoom NOTIFY zoomChanged)
 
@@ -63,12 +66,18 @@ public:
     QString name() const;
 
     int zoom() const;
-    
+
+    double apterture() const;
+
+    bool playing() const;
+
 public slots:
     void startDeviceDiscovery();
     void stopDeviceDiscovery();
     
     void disconnectFromDevice();
+
+    bool setCameraName(const QString name);
 
     bool autoFocus();
     bool autoAperture();
@@ -86,6 +95,11 @@ public slots:
     bool autoWhitebalance();
     bool restoreAutoWhiteBalance();
     bool focus(qint16 focus);
+    bool playback(bool next);
+    bool colorLift(double r, double g, double b, double l);
+    bool colorGamma(double r, double g, double b, double l);
+    bool colorGain(double r, double g, double b, double l);
+    bool colorOffset(double r, double g, double b, double l);
 private slots:
     void scanServices(const QString &address);
     void scanServices(const QBluetoothDeviceInfo &device);
@@ -134,6 +148,10 @@ Q_SIGNALS:
 
     void zoomChanged();
 
+    void apertureChanged();
+
+    void playingChanged();
+
 protected:
     void handleLensData(const QByteArray &data);
     void handleVideoData(const QByteArray &data);
@@ -148,8 +166,10 @@ protected:
     void handleStatusData(const QByteArray &data);    
     void handleMetaData(const QByteArray &data);
 
+    bool colorControl(uint8_t c, double r, double g, double b, double l);
 private:
     bool writeCameraCommand(const QByteArray &cmd);
+    bool writeCameraName(const QString &name);
 
     QBluetoothDeviceDiscoveryAgent *m_discoveryAgent;
 
@@ -165,20 +185,25 @@ private:
     QLowEnergyController *m_controller = nullptr;
     QLowEnergyService *m_cameraService = nullptr;
     QLowEnergyCharacteristic *m_cameraOutgoing = nullptr;
+    QLowEnergyCharacteristic *m_cameraName = nullptr;
     
     bool m_discovering = false;
 
     // Camera state
     QString m_name;
-    qint8 m_status;
+    qint8 m_status = 0;
     QTime m_timecode;
-    bool m_recording;
-    qint8 m_gain;
-    qint16 m_zoom;
-    qint16 m_wb;
-    qint16 m_tint;
+    bool m_recording = false;
+    bool m_playing = false;
+    qint8 m_gain = 0;
+    qint16 m_zoom = 0;
+    qint16 m_wb = 4600;
+    qint16 m_tint = 0;
     qint32 m_shutterSpeed;
     double m_aperture;
+
+    quint8 m_codec;
+    quint8 m_codec_variant;
 };
 
 #endif // CAMERADEVICE_H

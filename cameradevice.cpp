@@ -15,6 +15,27 @@ static const QBluetoothUuid Timecode("6D8F2110-86F1-41BF-9AFB-451D87E976C8");
 static const QBluetoothUuid CameraStatus("7FE8691D-95DC-4FC5-8ABD-CA74339B51B9");
 static const QBluetoothUuid DeviceName("FFAC0C52-C9FB-41A0-B063-CC76282EB89C");
 
+static int16_t float2fix(double n)
+{
+    unsigned short int int_part = 0, frac_part = 0;
+    int i;
+    double t;
+
+    int_part = (n > 0) ? (((int)floor(n)) << 11) : (((int)ceil(n)) << 11);
+    n = fabs(n) - floor(fabs(n));
+
+    t = 0.5;
+    for (i = 0; i < 11; i++) {
+        if ((n - t) >= 0) {
+            n -= t;
+            frac_part += (1 << (11 - 1 - i));
+        }
+        t = t /2;
+    }
+
+    return int_part + frac_part;
+}
+
 CameraDevice::CameraDevice()
 {
     m_discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
@@ -245,6 +266,11 @@ void CameraDevice::disconnectFromDevice()
         deviceDisconnected();
 }
 
+bool CameraDevice::setCameraName(const QString name)
+{
+    return writeCameraName(name);
+}
+
 void CameraDevice::deviceDisconnected()
 {
     qWarning() << "Disconnect from device";
@@ -297,6 +323,9 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
         if (ch.uuid()==OutgoingCameraControl) {
             qDebug() << "Found OutgoingCameraControl!";
             m_cameraOutgoing=new QLowEnergyCharacteristic(ch);
+        } else if (ch.uuid()==DeviceName) {
+            qDebug() << "Found DeviceName!";
+            m_cameraName=new QLowEnergyCharacteristic(ch);
         }
 
         uint permission = ch.properties();
@@ -401,14 +430,20 @@ void CameraDevice::handleMediaData(const QByteArray &data)
     switch (data.at(5)) {
     case 0: // Codec
         qDebug() << "Codec" << data.toHex(':');
+
+        m_codec=data.at(8);
+        m_codec_variant=data.at(9);
         break;
     case 1: // Transport mode
         qDebug() << "Mode" << data.toHex(':');
         m_recording=data.at(8)==2 ? true : false;
         emit recordingChanged();
+
+        m_playing=data.at(8)==1 ? true : false;
+        emit playingChanged();
         break;
     case 2: // Playback
-        qDebug() << "WB" << data.toHex(':');
+        qDebug() << "Playback" << data.toHex(':');
         break;
     default:
         qDebug() << "Unknown video data" << data.toHex(':') << data.toStdString();
@@ -457,7 +492,27 @@ void CameraDevice::handleConfigData(const QByteArray &data)
  */
 void CameraDevice::handleColorData(const QByteArray &data)
 {
+    double r,g,b,l;
+    uint16_t v;
     qDebug() << "handleColorData" << data.toHex(':');
+
+    switch (data.at(5)) {
+    case 0: // Lift
+        v =  CutePocket::uint16at(data, 8);
+        r = sqrt(pow(2.0f, ((double)(v) / 2048.0f)));
+
+        v =  CutePocket::uint16at(data, 8);
+        g = sqrt(pow(2.0f, ((double)(v) / 2048.0f)));
+
+        v =  CutePocket::uint16at(data, 8);
+        b = sqrt(pow(2.0f, ((double)(v) / 2048.0f)));
+
+        v =  CutePocket::uint16at(data, 8);
+        l = sqrt(pow(2.0f, ((double)(v) / 2048.0f)));
+
+        qDebug() << "lift" << r << g << b << l;
+        break;
+    }
 }
 
 /**
@@ -674,6 +729,36 @@ bool CameraDevice::writeCameraCommand(const QByteArray &cmd)
     return true;
 }
 
+bool CameraDevice::writeCameraName(const QString &name)
+{
+    if (!m_controller) {
+        qWarning("No controller!");
+        return false;
+    }
+
+    if (!m_cameraService) {
+        qWarning("Camera service not available");
+        return false;
+    }
+
+    if (!m_cameraName) {
+        qWarning("Camera name descriptor not available");
+        return false;
+    }
+
+    if (!m_cameraName->isValid())
+        qWarning("Camera name descriptor is not valid ?");
+
+    if (name.length()>32) {
+        qWarning("Name too long");
+        return false;
+    }
+
+    m_cameraService->writeCharacteristic(*m_cameraName, name.toLocal8Bit());
+
+    return true;
+}
+
 bool CameraDevice::autoFocus()
 {
     QByteArray cmd(8, 0);
@@ -842,6 +927,76 @@ bool CameraDevice::play(bool play) {
     return writeCameraCommand(cmd);
 }
 
+bool CameraDevice::playback(bool next) {
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff;
+    cmd[1]=0x05;
+    cmd[4]=0x0A;
+    cmd[5]=0x01;
+    cmd[6]=0x01;
+    cmd[8]=next ? 1 : 0;
+
+    return writeCameraCommand(cmd);
+}
+
+/**
+ * @brief CameraDevice::colorControl
+ * @param c
+ * @param r
+ * @param g
+ * @param b
+ * @param l
+ * @return
+ */
+bool CameraDevice::colorControl(uint8_t c, double r, double g, double b, double l) {
+    int16_t ir,ig,ib,il;
+
+    QByteArray cmd(16, 0);
+    cmd[0]=0xff;
+    cmd[1]=0x0C;
+    cmd[4]=0x08;
+    cmd[5]=c;
+    cmd[6]=0x80;
+    cmd[7]=0x00;
+
+    ir=float2fix(r);
+    ig=float2fix(g);
+    ib=float2fix(b);
+    il=float2fix(l);
+
+    qDebug() << ir << ig << ib << il;
+
+    cmd[8]=ir & 0xff;
+    cmd[9]=(ir >> 8);
+
+    cmd[10]=ig & 0xff;
+    cmd[11]=(ig >> 8);
+
+    cmd[12]=ib & 0xff;
+    cmd[13]=(ib >> 8);
+
+    cmd[14]=il & 0xff;
+    cmd[15]=(il >> 8);
+
+    return writeCameraCommand(cmd);
+}
+
+bool CameraDevice::colorLift(double r, double g, double b, double l) {
+    return colorControl(0, r, g, b, l);
+}
+
+bool CameraDevice::colorGamma(double r, double g, double b, double l) {
+    return colorControl(1, r, g, b, l);
+}
+
+bool CameraDevice::colorGain(double r, double g, double b, double l) {
+    return colorControl(2, r, g, b, l);
+}
+
+bool CameraDevice::colorOffset(double r, double g, double b, double l) {
+    return colorControl(3, r, g, b, l);
+}
+
 bool CameraDevice::recording() const
 {
     return m_recording;
@@ -875,4 +1030,14 @@ QString CameraDevice::name() const
 int CameraDevice::zoom() const
 {
     return m_zoom;
+}
+
+double CameraDevice::apterture() const
+{
+    return m_aperture;
+}
+
+bool CameraDevice::playing() const
+{
+    return m_playing;
 }
