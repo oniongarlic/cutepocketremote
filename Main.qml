@@ -17,11 +17,11 @@ ApplicationWindow {
             cameraStatus.text='Connecting...'
         }
         onDiscoveryStop: (devices) => {
-            if (devices==0)
-                cameraStatus.text="No cameras found!"
-            else
-                cameraStatus.text="Found "+devices
-        }
+                             if (devices==0)
+                             cameraStatus.text="No cameras found!"
+                             else
+                             cameraStatus.text="Found "+devices
+                         }
 
         onStatusChanged: {
             console.debug("CameraStatus is now: "+status)
@@ -53,12 +53,22 @@ ApplicationWindow {
                 text: "&Disconnect"
                 enabled: cd.connected
                 onClicked: cd.disconnectFromDevice()
-            }           
+            }
             ToolButton {
                 text: "Ca&pture"
-                enabled: cd.connectionReady && !cd.recording
+                enabled: cd.connectionReady && !cd.recording && !cd.playing
                 onClicked: cd.captureStill();
-            }           
+            }
+            ToolButton {
+                text: "Play"
+                enabled: cd.connectionReady && !cd.recording && !cd.playing
+                onClicked: cd.play(true);
+            }
+            ToolButton {
+                text: "CCR"
+                enabled: cd.connectionReady
+                onClicked: cd.colorCorrectionReset()
+            }
         }
     }
 
@@ -69,10 +79,30 @@ ApplicationWindow {
                 id: cameraStatus
                 text: ''
                 font.pixelSize: 24
+                Layout.alignment: Qt.AlignLeft
             }
             Text {
                 id: cameraName
                 text: cd.connected ? cd.name : 'N/A'
+                font.pixelSize: 24
+                Layout.alignment: Qt.AlignLeft
+            }
+            Text {
+                id: zoom
+                text: cd.connectionReady ? cd.zoom : '--'
+                font.pixelSize: 24
+            }
+            Text {
+                id: aperture
+                text: cd.connectionReady ? cd.aperture : '--'
+                font.pixelSize: 24
+            }
+            Text {
+                text: cd.connectionReady ? cd.wb+"K" : '--'
+                font.pixelSize: 24
+            }
+            Text {
+                text: cd.connectionReady ? cd.tint : '--'
                 font.pixelSize: 24
             }
             Text {
@@ -83,19 +113,7 @@ ApplicationWindow {
                     let tcs=tc.getHours()+':'+tc.getMinutes()+':'+tc.getSeconds()+'.'+tc.getMilliseconds()
                     return tcs;
                 }
-            }
-            Text {
-                id: zoom
-                text: cd.connectionReady ? cd.zoom : '--'
-                font.pixelSize: 24
-            }
-            Text {
-                text: cd.connectionReady ? cd.wb+"K" : '--'
-                font.pixelSize: 24
-            }
-            Text {
-                text: cd.connectionReady ? cd.tint : '--'
-                font.pixelSize: 24
+                Layout.alignment: Qt.AlignRight
             }
         }
 
@@ -116,21 +134,28 @@ ApplicationWindow {
                 Layout.margins: 4
                 Layout.alignment: Qt.AlignTop
                 spacing: 8
-                RoundButton {
+                ColumnLayout {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: bc.width/4
-                    Layout.preferredHeight: width                    
-                    text: "Record"
-                    enabled: !cd.recording
-                    highlighted: cd.recording
-                    onClicked: cd.record(true)
-                }
-                RoundButton {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: width
-                    Layout.preferredWidth: bc.width/4
-                    text: "Stop"                    
-                    onClicked: cd.record(false)
+                    Layout.preferredWidth: bc.width/5
+                    Layout.maximumHeight: 300
+                    Layout.alignment: Qt.AlignTop
+                    RoundButton {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: width
+                        text: "Record"
+                        enabled: !cd.recording
+                        highlighted: cd.recording
+                        onClicked: cd.record(true)
+                    }
+                    RoundButton {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: width
+                        text: "Stop"
+                        enabled: cd.recording || cd.playing
+                        onClicked: {
+                            cd.record(false) // false=stop
+                        }
+                    }
                 }
                 RoundButton {
                     Layout.fillWidth: true
@@ -145,77 +170,124 @@ ApplicationWindow {
                     Layout.preferredWidth: bc.width/4
                     text: "Auto\nFocus"
                     onClicked: cd.autoFocus()
-                }                
+                }
                 ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: bc.width/5
+                    Layout.maximumHeight: 300
+                    Layout.alignment: Qt.AlignTop
                     RoundButton {
-                        text: "Focus -"
+                        text: "Focus\n-"
+                        Layout.fillWidth: true
                         Layout.preferredHeight: width
                         onClicked: cd.focus(-100);
                     }
                     RoundButton {
-                        text: "Focus +"
+                        text: "Focus\n+"
+                        Layout.fillWidth: true
                         Layout.preferredHeight: width
                         onClicked: cd.focus(100);
                     }
                 }
-            }
-
-            Slider {
-                Layout.fillWidth: true                
-                from: 24
-                to: 5000
-                value: 30
-                stepSize: 1
-                live: false
-                wheelEnabled: true
-                onValueChanged: {
-                    cd.shutterSpeed(value)
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: bc.width/5
+                    Layout.maximumHeight: 300
+                    Layout.alignment: Qt.AlignTop
+                    RoundButton {
+                        text: "Focus\n--"
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: width
+                        onClicked: cd.focus(-500);
+                    }
+                    RoundButton {
+                        text: "Focus\n++"
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: width
+                        onClicked: cd.focus(500);
+                    }
                 }
             }
-            Slider {
-                Layout.fillWidth: true                
-                from: -128
-                to: 127
-                value: 0
-                stepSize: 1
-                live: false
-                wheelEnabled: true
-                onValueChanged: {
-                    cd.gain(value)
+
+            RowLayout {
+                Layout.fillWidth: true
+                Text {
+                    text: shutterSpeed.value+" ss"
+                }
+                Slider {
+                    id: shutterSpeed
+                    Layout.fillWidth: true
+                    from: 24
+                    to: 5000
+                    value: 60
+                    stepSize: 1
+                    live: false
+                    wheelEnabled: true
+                    onValueChanged: {
+                        cd.shutterSpeed(value)
+                    }
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Text {
+                    text: gain.value+" gain"
+                }
+
+                Slider {
+                    id: gain
+                    Layout.fillWidth: true
+                    from: -127
+                    to: 127
+                    value: 0
+                    stepSize: 1
+                    live: false
+                    wheelEnabled: true
+                    onValueChanged: {
+                        cd.gain(value)
+                    }
                 }
             }
             
             RowLayout {
                 spacing: 4
+                Text {
+                    text: "WB "+sliderWb.value
+                }
                 Slider {
                     id: sliderWb
-                    Layout.fillWidth: true                    
+                    Layout.fillWidth: true
                     from: 2500
                     to: 10000
-                    value: 4600
-                    stepSize: 100
+                    value: cd.connectionReady ? cd.wb : 4600
+                    stepSize: 50
                     live: false
                     snapMode: Slider.SnapAlways
                     wheelEnabled: true
+                    property bool userMoved: false
+                    onMoved: userMoved=true
                     onValueChanged: {
-                        cd.whiteBalance(value, spinTint.value)
+                        if (pressed || userMoved)
+                            cd.whiteBalance(value, spinTint.value)
+                        userMoved=false
                     }
                 }
                 SpinBox {
                     id: spinTint
                     from: -10
                     to: 10
-                    value: 0                    
+                    value: cd.connectionReady ? cd.tint : 0
                     onValueModified: {
                         cd.whiteBalance(sliderWb.value, value)
                     }
                 }
                 Button {
-                    text: "Auto"                    
+                    text: "Auto"
                     onClicked: cd.autoWhitebalance();
                 }
                 Button {
-                    text: "Restore"                    
+                    text: "Restore"
                     onClicked: cd.restoreAutoWhiteBalance()
                 }
             }            
