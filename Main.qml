@@ -6,8 +6,10 @@ import QtQuick.Layouts
 import org.tal
 
 ApplicationWindow {
-    width: 640
-    height: 480
+    width: 800
+    height: 520
+    minimumHeight: 540
+    minimumWidth: 640
     visible: true
     title: qsTr("CutePocketRemote")
 
@@ -75,37 +77,37 @@ ApplicationWindow {
     footer: ToolBar {
         RowLayout {
             anchors.fill: parent
-            Text {
+            Label {
                 id: cameraStatus
                 text: ''
                 font.pixelSize: 24
                 Layout.alignment: Qt.AlignLeft
             }
-            Text {
+            Label {
                 id: cameraName
                 text: cd.connected ? cd.name : 'N/A'
                 font.pixelSize: 24
                 Layout.alignment: Qt.AlignLeft
             }
-            Text {
+            Label {
                 id: zoom
                 text: cd.connectionReady ? cd.zoom : '--'
                 font.pixelSize: 24
             }
-            Text {
+            Label {
                 id: aperture
                 text: cd.connectionReady ? cd.aperture : '--'
                 font.pixelSize: 24
             }
-            Text {
+            Label {
                 text: cd.connectionReady ? cd.wb+"K" : '--'
                 font.pixelSize: 24
             }
-            Text {
+            Label {
                 text: cd.connectionReady ? cd.tint : '--'
                 font.pixelSize: 24
             }
-            Text {
+            Label {
                 id: timeCodeText
                 text: cd.connectionReady ? formatTimecode(cd.timecode) : '--:--:--.--'
                 font.pixelSize: 24
