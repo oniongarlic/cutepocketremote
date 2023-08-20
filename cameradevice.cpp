@@ -851,6 +851,9 @@ bool CameraDevice::whiteBalance(qint16 wb, qint16 tint)
 {
     if (tint < -50 && tint > 50)
         return false;
+
+    if (wb < 2500 && wb > 10000)
+        return false;
     
     QByteArray cmd(12, 0);
     cmd[0]=0xff; // Destination
