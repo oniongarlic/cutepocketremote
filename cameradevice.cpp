@@ -847,6 +847,26 @@ bool CameraDevice::shutterSpeed(qint32 shutter)
     return writeCameraCommand(cmd);
 }
 
+bool CameraDevice::iso(qint32 is)
+{
+    if (is < 100 && is > 3200)
+        return false;
+
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x08; // Length
+    cmd[4]=0x01; // Category
+    cmd[5]=0x0E; // Param
+    cmd[6]=0x03;
+
+    cmd[8]=is & 0xff;
+    cmd[10]=(is >> 8);
+    cmd[11]=(is >> 16);
+    cmd[12]=(is >> 24);
+
+    return writeCameraCommand(cmd);
+}
+
 bool CameraDevice::whiteBalance(qint16 wb, qint16 tint)
 {
     if (tint < -50 && tint > 50)

@@ -83,6 +83,7 @@ public slots:
     bool autoAperture();
     bool shutterSpeed(qint32 shutter);
     bool gain(qint8 gain);
+    bool iso(qint32 is);
 
     bool colorCorrectionReset();
 
@@ -91,9 +92,9 @@ public slots:
     bool captureStill();
     
     bool whiteBalance(qint16 wb, qint16 tint);
-    
     bool autoWhitebalance();
     bool restoreAutoWhiteBalance();
+
     bool focus(qint16 focus);
     bool playback(bool next);
     bool colorLift(double r, double g, double b, double l);

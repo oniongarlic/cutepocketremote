@@ -233,6 +233,14 @@ ApplicationWindow {
 
             RowLayout {
                 Layout.fillWidth: true
+
+                ComboBox {
+                    model: [100,200,400,800,1200,3200]
+                    onAccepted: {
+
+                    }
+                }
+
                 Text {
                     text: gain.value+" gain"
                 }
@@ -292,7 +300,7 @@ ApplicationWindow {
                     text: "Restore"
                     onClicked: cd.restoreAutoWhiteBalance()
                 }
-            }            
+            }
         }
     }
     
