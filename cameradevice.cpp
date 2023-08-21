@@ -849,7 +849,7 @@ bool CameraDevice::shutterSpeed(qint32 shutter)
 
 bool CameraDevice::iso(qint32 is)
 {
-    if (is < 100 && is > 3200)
+    if (is < 100 && is > 25600)
         return false;
 
     QByteArray cmd(12, 0);
