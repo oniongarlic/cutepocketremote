@@ -860,9 +860,9 @@ bool CameraDevice::iso(qint32 is)
     cmd[6]=0x03;
 
     cmd[8]=is & 0xff;
-    cmd[10]=(is >> 8);
-    cmd[11]=(is >> 16);
-    cmd[12]=(is >> 24);
+    cmd[9]=(is >> 8);
+    cmd[10]=(is >> 16);
+    cmd[11]=(is >> 24);
 
     return writeCameraCommand(cmd);
 }
