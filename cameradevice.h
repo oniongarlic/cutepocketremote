@@ -35,6 +35,8 @@ class CameraDevice: public QObject
     Q_PROPERTY(int tint READ tint NOTIFY tintChanged)
 
     Q_PROPERTY(double aperture READ apterture NOTIFY apertureChanged)
+    
+    Q_PROPERTY(int iso READ iso NOTIFY isoChanged)
 
     Q_PROPERTY(int zoom READ zoom NOTIFY zoomChanged)
 
@@ -70,7 +72,9 @@ public:
     double apterture() const;
 
     bool playing() const;
-
+    
+    int iso() const;
+    
 public slots:
     void startDeviceDiscovery();
     void stopDeviceDiscovery();
@@ -83,7 +87,7 @@ public slots:
     bool autoAperture();
     bool shutterSpeed(qint32 shutter);
     bool gain(qint8 gain);
-    bool iso(qint32 is);
+    bool setISO(qint32 is);
 
     bool colorCorrectionReset();
 
@@ -152,7 +156,9 @@ Q_SIGNALS:
     void apertureChanged();
 
     void playingChanged();
-
+    
+    void isoChanged();
+    
 protected:
     void handleLensData(const QByteArray &data);
     void handleVideoData(const QByteArray &data);
@@ -197,6 +203,7 @@ private:
     bool m_recording = false;
     bool m_playing = false;
     qint8 m_gain = 0;
+    qint32 m_iso = 100;
     qint16 m_zoom = 0;
     qint16 m_wb = 4600;
     qint16 m_tint = 0;

@@ -398,6 +398,11 @@ void CameraDevice::handleVideoData(const QByteArray &data)
         emit wbChanged();
         emit tintChanged();
         break;
+    case 14:
+        m_iso=CutePocket::int32at(data, 8);
+        qDebug() << "ISO" << data.toHex(':');
+        emit isoChanged();
+        break;
     default:
         qDebug() << "Unknown video data" << data.toHex(':') << data.toStdString();
     }
@@ -847,7 +852,7 @@ bool CameraDevice::shutterSpeed(qint32 shutter)
     return writeCameraCommand(cmd);
 }
 
-bool CameraDevice::iso(qint32 is)
+bool CameraDevice::setISO(qint32 is)
 {
     if (is < 100 && is > 25600)
         return false;
@@ -1063,4 +1068,9 @@ double CameraDevice::apterture() const
 bool CameraDevice::playing() const
 {
     return m_playing;
+}
+
+int CameraDevice::iso() const
+{
+    return m_iso;
 }
