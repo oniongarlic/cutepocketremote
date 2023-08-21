@@ -235,9 +235,10 @@ ApplicationWindow {
                 Layout.fillWidth: true
 
                 ComboBox {
-                    model: [100,200,400,800,1200,3200]
-                    onAccepted: {
-
+                    id: iso
+                    model: [100,125,160,200,250,320,400,500,640,800,1000,1250,1600,2000,2500,3200,4000,5000,6400,8000,10000,12800,16000,20000,25600]
+                    onActivated: {
+                        cd.iso(currentValue)
                     }
                 }
 
