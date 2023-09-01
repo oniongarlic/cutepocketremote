@@ -40,6 +40,10 @@ set_target_properties(appCutePocketRemote PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+if(APPLE)
+    set_target_properties(appCutePocketRemote PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
+endif()
+
 target_link_libraries(appCutePocketRemote
     PRIVATE Qt6::Quick
 )
