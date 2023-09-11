@@ -101,10 +101,12 @@ void CameraDevice::addCameraDevice(const QBluetoothDeviceInfo &info)
     qDebug() << "Found BM camera service!";
     qDebug() << info.address() << info.name() << info.rssi() << info.coreConfigurations() << info.serviceClasses() << info.serviceUuids() << info.manufacturerIds() << info.majorDeviceClass();
     
+#ifndef Q_OS_WIN32
     if (info.rssi()==0) {
         qDebug("Ignoring off-line device");
         return;
     }
+#endif
     
     if (m_cameras.contains(info.address().toString())) {
         qDebug("Dup!");
@@ -316,7 +318,7 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
     m_cameraService=service;
 
     for (const QLowEnergyCharacteristic &ch : chars) {
-        qDebug() << "QLowEnergyCharacteristic" << ch.uuid() << ch.value().toHex(':');
+        qDebug() << "QLowEnergyCharacteristic" << ch.uuid() << ch.value() << ch.value().size() << ch.value().toHex(':');
 
         QLowEnergyDescriptor desc = ch.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
 
@@ -326,6 +328,15 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
         } else if (ch.uuid()==DeviceName) {
             qDebug() << "Found DeviceName!";
             m_cameraName=new QLowEnergyCharacteristic(ch);
+        } else if (ch.uuid()==CameraStatus) {
+            // XXX: Seems under Windows we get the value already here and it won't update later from a notification ?
+            if (!ch.value().isNull()) {
+                m_status=ch.value().at(0);
+                qDebug() << "CameraStatus" << m_status;
+                emit statusChanged();
+            }
+        } else {
+            qDebug() << "Unhandled" << ch.uuid();
         }
 
         uint permission = ch.properties();
