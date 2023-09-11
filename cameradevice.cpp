@@ -46,6 +46,8 @@ CameraDevice::CameraDevice()
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this, &CameraDevice::deviceScanError);
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &CameraDevice::deviceScanFinished);
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &CameraDevice::deviceScanFinished);
+    
+    m_timecode.setHMS(0,0,0,0);
 }
 
 CameraDevice::~CameraDevice()
