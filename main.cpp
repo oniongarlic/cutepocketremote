@@ -8,6 +8,10 @@
 
 #include "cameradevice.h"
 
+#ifdef Q_OS_WIN32
+#include <windows.h>
+#endif
+
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -16,8 +20,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("tal.org");
     QCoreApplication::setApplicationName("CutePocketCamera");
     QCoreApplication::setApplicationVersion("0.1");
-
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));    
+    
+#ifdef DEBUG
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
+#endif
 
     qmlRegisterType<CameraDevice>("org.tal", 1,0, "CameraDevice");
 
@@ -29,6 +35,10 @@ int main(int argc, char *argv[])
         &app, []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
     engine.loadFromModule("CutePocketRemote", "Main");
+    
+#ifdef Q_OS_WIN32
+    SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED);
+#endif
 
     return app.exec();
 }
