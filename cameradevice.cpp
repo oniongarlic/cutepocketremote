@@ -373,6 +373,8 @@ void CameraDevice::handleLensData(const QByteArray &data)
 
         m_aperture = sqrt(pow(2.0f, ((double)(v) / 2048.0f)));
         qDebug() << "Aperture f" << data.toHex(':') << v << m_aperture;
+
+        emit apertureChanged();
     }
         break;
     case 3: // Aperture normalized
@@ -404,8 +406,8 @@ void CameraDevice::handleVideoData(const QByteArray &data)
         qDebug() << "Mode" << data.toHex(':');
         break;
     case 2: // WB
-        m_wb=data.at(8)+(data.at(9) << 8);
-        m_tint=data.at(10)+(data.at(11) << 8);
+        m_wb=CutePocket::int16at(data, 8);
+        m_tint=CutePocket::int16at(data, 10);
         qDebug() << "WB" << data.toHex(':') << m_wb << m_tint;
         
         emit wbChanged();
