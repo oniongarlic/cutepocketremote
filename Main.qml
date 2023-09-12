@@ -105,7 +105,7 @@ ApplicationWindow {
             }
             Label {
                 id: aperture
-                text: cd.connectionReady ? cd.aperture : '--'
+                text: cd.connectionReady ? cd.aperture.toFixed(1) : '--'
                 font.pixelSize: 24
             }
             Label {
@@ -118,13 +118,17 @@ ApplicationWindow {
             }
             Label {
                 id: timeCodeText
+                Layout.preferredWidth: 12*24
+                Layout.alignment: Qt.AlignRight
+                
                 text: cd.connectionReady ? formatTimecode(cd.timecode) : '--:--:--.--'
                 font.pixelSize: 24
+                
                 function formatTimecode(tc) {
                     let tcs=tc.getHours()+':'+tc.getMinutes()+':'+tc.getSeconds()+'.'+tc.getMilliseconds()
                     return tcs;
                 }
-                Layout.alignment: Qt.AlignRight
+                
             }
         }
     }
@@ -150,6 +154,12 @@ ApplicationWindow {
                     Layout.maximumHeight: 300
                     Layout.alignment: Qt.AlignTop
                     RoundButton {
+                        background: Rectangle {
+                            border.color: "red"
+                            border.width: 2
+                            radius: width/2
+                            color: "darkgrey"
+                        }
                         Layout.fillWidth: true
                         Layout.preferredHeight: width
                         text: "Record"
