@@ -11,6 +11,7 @@ ApplicationWindow {
     minimumHeight: 540
     minimumWidth: 640
     visible: true
+    color: "grey"
     title: qsTr("CutePocketRemote")
 
     CameraDevice {
@@ -116,14 +117,9 @@ ApplicationWindow {
                 text: cd.connectionReady ? cd.tint : '--'
                 font.pixelSize: 24
             }
-            Label {
+            TimeCodeText {
                 id: timeCodeText
-                text: cd.connectionReady ? formatTimecode(cd.timecode) : '--:--:--.--'
-                font.pixelSize: 24
-                function formatTimecode(tc) {
-                    let tcs=tc.getHours()+':'+tc.getMinutes()+':'+tc.getSeconds()+'.'+tc.getMilliseconds()
-                    return tcs;
-                }
+                camera: cd
                 Layout.alignment: Qt.AlignRight
             }
         }
@@ -139,91 +135,91 @@ ApplicationWindow {
             RowLayout {
                 id: bc
                 Layout.fillWidth: true
-                Layout.minimumHeight: 200
-                Layout.maximumHeight: 300
                 Layout.margins: 4
                 Layout.alignment: Qt.AlignTop
                 spacing: 8
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: bc.width/5
-                    Layout.maximumHeight: 300
-                    Layout.alignment: Qt.AlignTop
-                    RoundButton {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: width
-                        text: "Record"
-                        enabled: !cd.recording
-                        highlighted: cd.recording
-                        onClicked: cd.record(true)
-                    }
-                    RoundButton {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: width
-                        text: "Stop"
-                        enabled: cd.recording || cd.playing
-                        onClicked: {
-                            cd.record(false) // false=stop
-                        }
+                Button {
+                    text: "Record"
+                    enabled: !cd.recording
+                    highlighted: cd.recording
+                    onClicked: cd.record(true)
+                }
+                Button {
+                    text: "Stop"
+                    enabled: cd.recording || cd.playing
+                    onClicked: {
+                        cd.record(false) // false=stop
                     }
                 }
-                RoundButton {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: width
-                    Layout.preferredWidth: bc.width/4
-                    text: "Auto\nAperture"
-                    onClicked: cd.autoAperture()
+                TimeCodeText {
+                    id: timeCodeText2
+                    font.pixelSize: 42
+                    camera: cd
+                    color: cd.recording ? "red" : "white"
+                    Layout.alignment: Qt.AlignRight
                 }
-                RoundButton {
+                GridLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: width
-                    Layout.preferredWidth: bc.width/4
-                    text: "Auto\nFocus"
-                    onClicked: cd.autoFocus()
-                }
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: bc.width/5
-                    Layout.maximumHeight: 300
                     Layout.alignment: Qt.AlignTop
-                    RoundButton {
-                        text: "Focus\n-"
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: width
+                    rows: 1
+                    columns: 6
+                    Button {
+                        text: "Auto Focus"
+                        onClicked: cd.autoFocus()
+                    }
+                    Button {
+                        text: "Focus-"
                         onClicked: cd.focus(-100);
                     }
-                    RoundButton {
-                        text: "Focus\n+"
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: width
+                    Button {
+                        text: "Focus+"
                         onClicked: cd.focus(100);
                     }
-                }
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: bc.width/5
-                    Layout.maximumHeight: 300
-                    Layout.alignment: Qt.AlignTop
-                    RoundButton {
-                        text: "Focus\n--"
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: width
+                    Button {
+                        text: "Focus--"
                         onClicked: cd.focus(-500);
                     }
-                    RoundButton {
-                        text: "Focus\n++"
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: width
+                    Button {
+                        text: "Focus++"
                         onClicked: cd.focus(500);
+                    }
+                    Dial {
+                        id: focusDial
+                        inputMode: Dial.Horizontal
+                        from: -200
+                        to: 200
+                        stepSize: 10
+                        onValueChanged: console.debug(value)
+                        onPressedChanged: if (!pressed) value=0
+                        wheelEnabled: true
+                        Timer {
+                            interval: 100
+                            repeat: true
+                            running: focusDial.pressed
+                            onTriggered: {
+                                console.debug("RelFocus: "+focusDial.value)
+                                cd.focus(focusDial.value);
+                            }
+                        }
                     }
                 }
             }
 
+            Label {
+                text: "Shutter speed: "+ shutterSpeed.value
+            }
+
             RowLayout {
                 Layout.fillWidth: true
-                Text {
-                    text: shutterSpeed.value+" ss"
+
+                ComboBox {
+                    id: comboShutter
+                    model: [24,25,30,50,60,100,120,160,250]
+                    onActivated: {
+                        cd.shutterSpeed(currentValue)
+                    }
                 }
+
                 Slider {
                     id: shutterSpeed
                     Layout.fillWidth: true
@@ -237,6 +233,14 @@ ApplicationWindow {
                         cd.shutterSpeed(value)
                     }
                 }
+                Button {
+                    text: "Auto\nAperture"
+                    onClicked: cd.autoAperture()
+                }
+            }
+
+            Label {
+                text: "ISO"
             }
 
             RowLayout {
@@ -250,15 +254,15 @@ ApplicationWindow {
                     }
                 }
 
-                Text {
+                Label {
                     text: gain.value+" gain"
                 }
 
                 Slider {
                     id: gain
                     Layout.fillWidth: true
-                    from: -127
-                    to: 127
+                    from: -10
+                    to: 10
                     value: 0
                     stepSize: 1
                     live: false
@@ -268,46 +272,109 @@ ApplicationWindow {
                     }
                 }
             }
+
+            Label {
+                text: "White Balance: "+sliderWb.value
+            }
             
             RowLayout {
                 spacing: 4
-                Text {
-                    text: "WB "+sliderWb.value
+                ComboBox {
+                    id: comboWB
+                    model: [3200,3600,5600]
+                    onActivated: {
+                        cd.whiteBalance(currentValue, spinTint.value)
+                    }
                 }
-                Slider {
-                    id: sliderWb
+                ColumnLayout {
                     Layout.fillWidth: true
-                    from: 2500
-                    to: 10000
-                    value: cd.connectionReady ? cd.wb : 4600
-                    stepSize: 50
-                    live: false
-                    snapMode: Slider.SnapAlways
-                    wheelEnabled: true
-                    property bool userMoved: false
-                    onMoved: userMoved=true
-                    onValueChanged: {
-                        if (pressed || userMoved)
-                            cd.whiteBalance(value, spinTint.value)
-                        userMoved=false
+                    Slider {
+                        Layout.fillWidth: true
+                        id: sliderWb
+                        from: 2500
+                        to: 10000
+                        value: cd.connectionReady ? cd.wb : 4600
+                        stepSize: 50
+                        live: false
+                        snapMode: Slider.SnapAlways
+                        wheelEnabled: true
+                        property bool userMoved: false
+                        onMoved: userMoved=true
+                        onValueChanged: {
+                            if (pressed || userMoved)
+                                cd.whiteBalance(value, spinTint.value)
+                            userMoved=false
+                        }
+                    }
+                    SpinBox {
+                        id: spinTint
+                        Layout.fillWidth: true
+                        from: -10
+                        to: 10
+                        value: cd.connectionReady ? cd.tint : 0
+                        wheelEnabled: true
+                        onValueModified: {
+                            cd.whiteBalance(sliderWb.value, value)
+                        }
                     }
                 }
-                SpinBox {
-                    id: spinTint
-                    from: -10
-                    to: 10
-                    value: cd.connectionReady ? cd.tint : 0
-                    onValueModified: {
-                        cd.whiteBalance(sliderWb.value, value)
+                ColumnLayout {
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Auto"
+                        onClicked: cd.autoWhitebalance();
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Restore"
+                        onClicked: cd.restoreAutoWhiteBalance()
                     }
                 }
-                Button {
-                    text: "Auto"
-                    onClicked: cd.autoWhitebalance();
-                }
-                Button {
-                    text: "Restore"
-                    onClicked: cd.restoreAutoWhiteBalance()
+                GridLayout {
+                    rows: 2
+                    columns: 3
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Sun"
+                        onClicked: {
+                            cd.whiteBalance(3200, 0)
+                        }
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Shade"
+                        onClicked: {
+                            cd.whiteBalance(3200, 0)
+                        }
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Cloudy"
+                        onClicked: {
+                            cd.whiteBalance(3200, 0)
+                        }
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Inside"
+                        onClicked: {
+                            cd.whiteBalance(3200, 0)
+                        }
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: "4600K"
+                        onClicked: {
+                            cd.whiteBalance(4600, 0)
+                        }
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: "5600K"
+                        onClicked: {
+                            cd.whiteBalance(5600, 0)
+                        }
+                    }
                 }
             }
         }

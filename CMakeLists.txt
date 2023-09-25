@@ -19,6 +19,7 @@ qt_add_qml_module(appCutePocketRemote
     SOURCES cameradevice.cpp
     SOURCES cameradevice.h
     SOURCES cameratypes.h
+    QML_FILES TimeCodeText.qml
 )
 
 target_link_libraries(appCutePocketRemote PUBLIC
