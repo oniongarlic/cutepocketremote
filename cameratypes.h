@@ -46,16 +46,16 @@ typedef union
 
 inline quint16 uint16at(const QByteArray &ba, int p) {
     CutePocket::U16_U8 val;
-    val.u8[1] = static_cast<quint8>(ba.at(p));
-    val.u8[0] = static_cast<quint8>(ba.at(p+1));
+    val.u8[0] = static_cast<quint8>(ba.at(p));
+    val.u8[1] = static_cast<quint8>(ba.at(p+1));
     
     return val.u16;
 };
 
 inline qint16 int16at(const QByteArray &ba, int p) {
     CutePocket::S16_S8 val;
-    val.u8[1] = static_cast<quint8>(ba.at(p));
-    val.u8[0] = static_cast<quint8>(ba.at(p+1));
+    val.u8[0] = static_cast<qint8>(ba.at(p));
+    val.u8[1] = static_cast<qint8>(ba.at(p+1));
     
     return val.s16;
 };

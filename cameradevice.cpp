@@ -46,6 +46,8 @@ CameraDevice::CameraDevice()
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this, &CameraDevice::deviceScanError);
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &CameraDevice::deviceScanFinished);
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &CameraDevice::deviceScanFinished);
+    
+    m_timecode.setHMS(0,0,0,0);
 }
 
 CameraDevice::~CameraDevice()
@@ -101,10 +103,12 @@ void CameraDevice::addCameraDevice(const QBluetoothDeviceInfo &info)
     qDebug() << "Found BM camera service!";
     qDebug() << info.address() << info.name() << info.rssi() << info.coreConfigurations() << info.serviceClasses() << info.serviceUuids() << info.manufacturerIds() << info.majorDeviceClass();
     
+#ifndef Q_OS_WIN32
     if (info.rssi()==0) {
         qDebug("Ignoring off-line device");
         return;
     }
+#endif
     
     if (m_cameras.contains(info.address().toString())) {
         qDebug("Dup!");
@@ -316,7 +320,7 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
     m_cameraService=service;
 
     for (const QLowEnergyCharacteristic &ch : chars) {
-        qDebug() << "QLowEnergyCharacteristic" << ch.uuid() << ch.value().toHex(':');
+        qDebug() << "QLowEnergyCharacteristic" << ch.uuid() << ch.value() << ch.value().size() << ch.value().toHex(':');
 
         QLowEnergyDescriptor desc = ch.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
 
@@ -326,6 +330,15 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
         } else if (ch.uuid()==DeviceName) {
             qDebug() << "Found DeviceName!";
             m_cameraName=new QLowEnergyCharacteristic(ch);
+        } else if (ch.uuid()==CameraStatus) {
+            // XXX: Seems under Windows we get the value already here and it won't update later from a notification ?
+            if (!ch.value().isNull()) {
+                m_status=ch.value().at(0);
+                qDebug() << "CameraStatus" << m_status;
+                emit statusChanged();
+            }
+        } else {
+            qDebug() << "Unhandled" << ch.uuid();
         }
 
         uint permission = ch.properties();
@@ -360,6 +373,8 @@ void CameraDevice::handleLensData(const QByteArray &data)
 
         m_aperture = sqrt(pow(2.0f, ((double)(v) / 2048.0f)));
         qDebug() << "Aperture f" << data.toHex(':') << v << m_aperture;
+
+        emit apertureChanged();
     }
         break;
     case 3: // Aperture normalized
@@ -391,8 +406,8 @@ void CameraDevice::handleVideoData(const QByteArray &data)
         qDebug() << "Mode" << data.toHex(':');
         break;
     case 2: // WB
-        m_wb=data.at(8)+(data.at(9) << 8);
-        m_tint=data.at(10)+(data.at(11) << 8);
+        m_wb=CutePocket::int16at(data, 8);
+        m_tint=CutePocket::int16at(data, 10);
         qDebug() << "WB" << data.toHex(':') << m_wb << m_tint;
         
         emit wbChanged();

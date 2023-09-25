@@ -106,7 +106,7 @@ ApplicationWindow {
             }
             Label {
                 id: aperture
-                text: cd.connectionReady ? cd.aperture : '--'
+                text: cd.connectionReady ? cd.aperture.toFixed(1) : '--'
                 font.pixelSize: 24
             }
             Label {
@@ -119,6 +119,7 @@ ApplicationWindow {
             }
             TimeCodeText {
                 id: timeCodeText
+                Layout.preferredWidth: 12*24
                 camera: cd
                 Layout.alignment: Qt.AlignRight
             }
