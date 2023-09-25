@@ -6,6 +6,8 @@ Label {
     id: timeCodeText
 
     property CameraDevice camera;
+    horizontalAlignment: Text.AlignHCenter
+    verticalAlignment: Text.AlignVCenter
 
     text: camera.connectionReady ? formatTimecode(camera.timecode) : '--:--:--.--'
     font.pixelSize: 24

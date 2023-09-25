@@ -63,11 +63,6 @@ ApplicationWindow {
                 onClicked: cd.disconnectFromDevice()
             }
             ToolButton {
-                text: "Ca&pture"
-                enabled: cd.connectionReady && !cd.recording && !cd.playing
-                onClicked: cd.captureStill();
-            }
-            ToolButton {
                 text: "Play"
                 enabled: cd.connectionReady && !cd.recording && !cd.playing
                 onClicked: cd.play(true);
@@ -139,68 +134,94 @@ ApplicationWindow {
                 Layout.margins: 4
                 Layout.alignment: Qt.AlignTop
                 spacing: 8
-                Button {
-                    text: "Record"
-                    enabled: !cd.recording
-                    highlighted: cd.recording
-                    onClicked: cd.record(true)
-                }
-                Button {
-                    text: "Stop"
-                    enabled: cd.recording || cd.playing
-                    onClicked: {
-                        cd.record(false) // false=stop
+                ColumnLayout {
+                    id: buttonsContainer
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 100
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Record"
+                        enabled: !cd.recording
+                        highlighted: cd.recording
+                        onClicked: cd.record(true)
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Stop"
+                        enabled: cd.recording || cd.playing
+                        onClicked: {
+                            cd.record(false) // false=stop
+                        }
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Capture"
+                        enabled: cd.connectionReady && !cd.recording && !cd.playing
+                        onClicked: cd.captureStill()
                     }
                 }
                 TimeCodeText {
                     id: timeCodeText2
+                    Layout.fillWidth: true
+                    Layout.margins: 8
+                    height: buttonsContainer.height
                     font.pixelSize: 42
+                    // Layout.preferredWidth: 12*42
                     camera: cd
                     color: cd.recording ? "red" : "white"
-                    Layout.alignment: Qt.AlignRight
+                    Layout.alignment: Qt.AlignHCenter
                 }
                 GridLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
-                    rows: 1
-                    columns: 6
-                    Button {
-                        text: "Auto Focus"
-                        onClicked: cd.autoFocus()
-                    }
+                    Layout.minimumWidth: 200
+                    rows: 3
+                    columns: 2
                     Button {
                         text: "Focus-"
+                        Layout.fillWidth: true
                         onClicked: cd.focus(-100);
                     }
                     Button {
                         text: "Focus+"
+                        Layout.fillWidth: true
                         onClicked: cd.focus(100);
                     }
                     Button {
                         text: "Focus--"
+                        Layout.fillWidth: true
                         onClicked: cd.focus(-500);
                     }
                     Button {
                         text: "Focus++"
+                        Layout.fillWidth: true
                         onClicked: cd.focus(500);
                     }
-                    Dial {
-                        id: focusDial
-                        inputMode: Dial.Horizontal
-                        from: -200
-                        to: 200
-                        stepSize: 10
-                        onValueChanged: console.debug(value)
-                        onPressedChanged: if (!pressed) value=0
-                        wheelEnabled: true
-                        Timer {
-                            interval: 100
-                            repeat: true
-                            running: focusDial.pressed
-                            onTriggered: {
-                                console.debug("RelFocus: "+focusDial.value)
-                                cd.focus(focusDial.value);
-                            }
+                    Button {
+                        text: "Auto Focus"
+                        onClicked: cd.autoFocus()
+                        //Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 100
+                        Layout.columnSpan: 2
+                    }
+                }
+                Dial {
+                    id: focusDial
+                    inputMode: Dial.Horizontal
+                    from: -200
+                    to: 200
+                    stepSize: 10
+                    onValueChanged: console.debug(value)
+                    onPressedChanged: if (!pressed) value=0
+                    wheelEnabled: true
+                    Timer {
+                        interval: 100
+                        repeat: true
+                        running: focusDial.pressed
+                        onTriggered: {
+                            console.debug("RelFocus: "+focusDial.value)
+                            cd.focus(focusDial.value);
                         }
                     }
                 }
