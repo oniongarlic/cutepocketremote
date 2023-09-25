@@ -303,7 +303,7 @@ ApplicationWindow {
                 spacing: 4
                 ComboBox {
                     id: comboWB
-                    model: [3200,3600,5600]
+                    model: [3200,3600,4000,5600,6000,7500]
                     onActivated: {
                         cd.whiteBalance(currentValue, spinTint.value)
                     }
