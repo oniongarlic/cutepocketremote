@@ -39,8 +39,22 @@ ApplicationWindow {
         }
         
         onIsoChanged: {
-            console.debug("ISO is"+iso)
+            console.debug("ISO is:"+iso)
             comboISO.currentIndex=comboISO.indexOfValue(iso)
+        }
+        
+        onShutterSpeedChanged: {
+            console.debug("shutterSpeed is:"+shutterSpeed)
+            comboShutter.currentIndex=comboShutter.indexOfValue(shutterSpeed)
+        }
+        
+        onWbChanged: {
+            console.debug("WB is:"+wb)
+            comboWB.currentIndex=comboWB.indexOfValue(wb)
+        }
+        
+        onTintChanged: {
+            spinTint.value=tint
         }
         
         onConnectionFailure: {
@@ -97,6 +111,10 @@ ApplicationWindow {
             }
             Label {
                 text: cd.connectionReady ? cd.iso : '---'
+                font.pixelSize: 24
+            }
+            Label {
+                text: cd.connectionReady ? '1/'+cd.shutterSpeed : '-/--'
                 font.pixelSize: 24
             }
             Label {
@@ -170,6 +188,9 @@ ApplicationWindow {
                     camera: cd
                     color: cd.recording ? "red" : "white"
                     Layout.alignment: Qt.AlignHCenter
+                    onClicked: {
+                        cd.setDisplay(!cd.timecodeDisplay)
+                    }
                 }
                 GridLayout {
                     Layout.fillWidth: true
@@ -216,11 +237,13 @@ ApplicationWindow {
                     onPressedChanged: if (!pressed) value=0
                     wheelEnabled: true
                     Timer {
-                        interval: 100
+                        interval: 200
                         repeat: true
                         running: focusDial.pressed
                         onTriggered: {
                             console.debug("RelFocus: "+focusDial.value)
+                            if (focusDial.value==0)
+                                return;
                             cd.focus(focusDial.value);
                         }
                     }
@@ -228,7 +251,7 @@ ApplicationWindow {
             }
 
             Label {
-                text: "Shutter speed: "+ shutterSpeed.value
+                text: "Shutter speed: "+ cd.shutterSpeed
             }
 
             RowLayout {
@@ -236,14 +259,14 @@ ApplicationWindow {
 
                 ComboBox {
                     id: comboShutter
-                    model: [24,25,30,50,60,100,120,160,250]
+                    model: [24,25,30,50,60,100,120,125,160,200,250,500,1000,2000]
                     onActivated: {
-                        cd.shutterSpeed(currentValue)
+                        cd.setShutterSpeed(currentValue)
                     }
                 }
 
                 Slider {
-                    id: shutterSpeed
+                    id: shutterSpeedSlider
                     Layout.fillWidth: true
                     from: 24
                     to: 5000
@@ -252,7 +275,7 @@ ApplicationWindow {
                     live: false
                     wheelEnabled: true
                     onValueChanged: {
-                        cd.shutterSpeed(value)
+                        cd.setShutterSpeed(value)
                     }
                 }
                 Button {
@@ -262,7 +285,7 @@ ApplicationWindow {
             }
 
             Label {
-                text: "ISO"
+                text: "ISO: "+cd.iso
             }
 
             RowLayout {
@@ -277,7 +300,7 @@ ApplicationWindow {
                 }
 
                 Label {
-                    text: gain.value+" gain"
+                    text: "Gain: "+gain.value
                 }
 
                 Slider {
@@ -290,20 +313,20 @@ ApplicationWindow {
                     live: false
                     wheelEnabled: true
                     onValueChanged: {
-                        cd.gain(value)
+                        cd.setGain(value)
                     }
                 }
             }
 
             Label {
-                text: "White Balance: "+sliderWb.value
+                text: "White Balance: "+cd.wb+'K/'+cd.tint
             }
             
             RowLayout {
                 spacing: 4
                 ComboBox {
                     id: comboWB
-                    model: [3200,3600,4000,5600,6000,7500]
+                    model: [3200,3600,4000,4600,5600,6500,7500]
                     onActivated: {
                         cd.whiteBalance(currentValue, spinTint.value)
                     }
@@ -331,8 +354,8 @@ ApplicationWindow {
                     SpinBox {
                         id: spinTint
                         Layout.fillWidth: true
-                        from: -10
-                        to: 10
+                        from: -50
+                        to: 50
                         value: cd.connectionReady ? cd.tint : 0
                         wheelEnabled: true
                         onValueModified: {
@@ -359,28 +382,35 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         text: "Sun"
                         onClicked: {
+                            cd.whiteBalance(5600, 10)
+                        }
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Light 1"
+                        onClicked: {
                             cd.whiteBalance(3200, 0)
+                        }
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Light 2"
+                        onClicked: {
+                            cd.whiteBalance(4000, 15)
                         }
                     }
                     Button {
                         Layout.fillWidth: true
                         text: "Shade"
                         onClicked: {
-                            cd.whiteBalance(3200, 0)
+                            cd.whiteBalance(4500, 15)
                         }
                     }
                     Button {
                         Layout.fillWidth: true
                         text: "Cloudy"
                         onClicked: {
-                            cd.whiteBalance(3200, 0)
-                        }
-                    }
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Inside"
-                        onClicked: {
-                            cd.whiteBalance(3200, 0)
+                            cd.whiteBalance(6500, 10)
                         }
                     }
                     Button {
@@ -388,13 +418,6 @@ ApplicationWindow {
                         text: "4600K"
                         onClicked: {
                             cd.whiteBalance(4600, 0)
-                        }
-                    }
-                    Button {
-                        Layout.fillWidth: true
-                        text: "5600K"
-                        onClicked: {
-                            cd.whiteBalance(5600, 0)
                         }
                     }
                 }
