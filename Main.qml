@@ -7,8 +7,8 @@ import org.tal
 
 ApplicationWindow {
     width: 800
-    height: 520
-    minimumHeight: 540
+    height: 480
+    minimumHeight: 480
     minimumWidth: 640
     visible: true
     color: "grey"
@@ -184,7 +184,8 @@ ApplicationWindow {
                     Layout.margins: 8
                     height: buttonsContainer.height
                     font.pixelSize: 42
-                    // Layout.preferredWidth: 12*42
+                    Layout.preferredWidth: 12*42
+                    Layout.minimumWidth: contentWidth
                     camera: cd
                     color: cd.recording ? "red" : "white"
                     Layout.alignment: Qt.AlignHCenter
