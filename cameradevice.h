@@ -19,28 +19,31 @@ class CameraDevice: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool disocvering READ discovering NOTIFY discoveringChanged)
-    Q_PROPERTY(bool controllerError READ hasControllerError NOTIFY controllerErrorChanged)
+    Q_PROPERTY(bool disocvering READ discovering NOTIFY discoveringChanged FINAL)
+    Q_PROPERTY(bool controllerError READ hasControllerError NOTIFY controllerErrorChanged FINAL)
 
-    Q_PROPERTY(bool recording READ recording NOTIFY recordingChanged)
-    Q_PROPERTY(bool playing READ playing NOTIFY playingChanged)
+    Q_PROPERTY(bool recording READ recording NOTIFY recordingChanged FINAL)
+    Q_PROPERTY(bool playing READ playing NOTIFY playingChanged FINAL)
 
-    Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
+    Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged FINAL)
 
-    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
+    Q_PROPERTY(QString name READ name NOTIFY nameChanged FINAL)
 
-    Q_PROPERTY(int status READ status NOTIFY statusChanged)
+    Q_PROPERTY(int status READ status NOTIFY statusChanged FINAL)
 
-    Q_PROPERTY(int wb READ wb NOTIFY wbChanged)
-    Q_PROPERTY(int tint READ tint NOTIFY tintChanged)
+    Q_PROPERTY(int wb READ wb NOTIFY wbChanged FINAL)
+    Q_PROPERTY(int tint READ tint NOTIFY tintChanged FINAL)
 
-    Q_PROPERTY(double aperture READ apterture NOTIFY apertureChanged)
+    Q_PROPERTY(double aperture READ apterture NOTIFY apertureChanged FINAL)
     
     Q_PROPERTY(int iso READ iso NOTIFY isoChanged)
+    
+    Q_PROPERTY(int shutterSpeed READ shutterSpeed NOTIFY shutterSpeedChanged FINAL)
 
-    Q_PROPERTY(int zoom READ zoom NOTIFY zoomChanged)
+    Q_PROPERTY(int zoom READ zoom NOTIFY zoomChanged FINAL)
 
-    Q_PROPERTY(QTime timecode READ timecode NOTIFY timecodeChanged)
+    Q_PROPERTY(QTime timecode READ timecode NOTIFY timecodeChanged FINAL)
+    Q_PROPERTY(bool timecodeDisplay READ timecodeDisplay NOTIFY timecodeDisplayChanged FINAL)
 
     QML_ELEMENT
     QML_SINGLETON
@@ -75,6 +78,10 @@ public:
     
     int iso() const;
     
+    int shutterSpeed() const;
+    
+    bool timecodeDisplay() const;
+    
 public slots:
     void startDeviceDiscovery();
     void stopDeviceDiscovery();
@@ -85,8 +92,8 @@ public slots:
 
     bool autoFocus();
     bool autoAperture();
-    bool shutterSpeed(qint32 shutter);
-    bool gain(qint8 gain);
+    bool setShutterSpeed(qint32 shutter);
+    bool setGain(qint8 gain);
     bool setISO(qint32 is);
 
     bool colorCorrectionReset();
@@ -105,6 +112,7 @@ public slots:
     bool colorGamma(double r, double g, double b, double l);
     bool colorGain(double r, double g, double b, double l);
     bool colorOffset(double r, double g, double b, double l);
+    bool setDisplay(bool tc);
 private slots:
     void scanServices(const QString &address);
     void scanServices(const QBluetoothDeviceInfo &device);
@@ -159,6 +167,10 @@ Q_SIGNALS:
     
     void isoChanged();
     
+    void shutterSpeedChanged();
+    
+    void timecodeDisplayChanged();
+    
 protected:
     void handleLensData(const QByteArray &data);
     void handleVideoData(const QByteArray &data);
@@ -204,14 +216,21 @@ private:
     bool m_playing = false;
     qint8 m_gain = 0;
     qint32 m_iso = 100;
+    qint32 m_exposure = 0;
     qint16 m_zoom = 0;
     qint16 m_wb = 4600;
     qint16 m_tint = 0;
-    qint32 m_shutterSpeed;
-    double m_aperture;
+    qint32 m_shutterSpeed=0;
+    double m_aperture=0.0;
+    double m_aperture_norm=0.0;
+    
+    bool m_timecodeDisplay=false;
 
-    quint8 m_codec;
-    quint8 m_codec_variant;
+    quint8 m_codec=0;
+    quint8 m_codec_variant=0;
+    quint8 m_media_speed=0;
+    quint8 m_media_slot_1;
+    quint8 m_media_slot_2;
 };
 
 #endif // CAMERADEVICE_H

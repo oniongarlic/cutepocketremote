@@ -300,8 +300,14 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
         qDebug() << "... invalid service?";
         return;
     }
-    
+
     if (service->state()==QLowEnergyService::RemoteServiceDiscovering) {
+        const QList<QLowEnergyCharacteristic> chars = service->characteristics();
+        qDebug() << "Service: " << service->serviceName() << service->serviceUuid() << chars.size();
+        
+        for (const QLowEnergyCharacteristic &ch : chars) {
+            qDebug() << "QLowEnergyCharacteristic" << ch.uuid() << ch.value() << ch.value().size() << ch.value().toHex(':');
+        }
         return;
     }
     
@@ -311,7 +317,7 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
     }
     
     const QList<QLowEnergyCharacteristic> chars = service->characteristics();
-    qDebug() << "Service: " << service->serviceName() << service->serviceUuid();    
+    qDebug() << "Service: " << service->serviceName() << service->serviceUuid();
 
     connect(service, &QLowEnergyService::stateChanged, this, &CameraDevice::serviceStateChanged);
     connect(service, &QLowEnergyService::characteristicChanged, this, &CameraDevice::characteristicChanged);
@@ -382,14 +388,21 @@ void CameraDevice::handleLensData(const QByteArray &data)
         uint16_t v = CutePocket::uint16at(data, 8); // data[8] + (data[9] << 8);
 
         qDebug() << "Aperture norm" << data.toHex(':') << v;
+        m_aperture_norm=v;
     }
     break;
+    case 6:
+        qDebug() << "OIS" << data.toHex(':');
+        break;
     case 7: // Zoom
         m_zoom= CutePocket::uint16at(data, 8);
         emit zoomChanged();
         qDebug() << "Zoom" << data.toHex(':') << m_zoom;
         break;
-
+    case 8:
+    case 9:
+        qDebug() << "Zoom?" << data.toHex(':');
+        break;
     default:
         qDebug() << "Unknown lens data" << data.toHex(':') << data.toStdString();
     }
@@ -402,7 +415,7 @@ void CameraDevice::handleLensData(const QByteArray &data)
 void CameraDevice::handleVideoData(const QByteArray &data)
 {
     switch (data.at(5)) {
-    case 1: // Video mode
+    case 0: // Video mode
         qDebug() << "Mode" << data.toHex(':');
         break;
     case 2: // WB
@@ -413,11 +426,50 @@ void CameraDevice::handleVideoData(const QByteArray &data)
         emit wbChanged();
         emit tintChanged();
         break;
+    case 3:
+        qDebug() << "AutoWB Triggered";
+        break;
+    case 4:
+        qDebug() << "AutoWB Restored";
+        break;
+    case 5:
+        m_exposure=CutePocket::int32at(data, 8);
+        qDebug() << "Exposure" << data.toHex(':') << m_exposure;
+        break;
+    case 7:
+        qDebug() << "DRM" << data.toHex(':');
+        break;
+    case 8:
+        qDebug() << "Sharpening" << data.toHex(':');
+        break;
+    case 9:
+        qDebug() << "Format" << data.toHex(':');
+        break;
+    case 10:
+        qDebug() << "AutoExposureMode" << data.toHex(':');
+        break;
+    case 11:
+        qDebug() << "Shutter Angle" << data.toHex(':');
+        break;
+    case 12:
+        qDebug() << "Shutter speed" << data.toHex(':');
+        m_shutterSpeed=CutePocket::int32at(data, 8);
+        emit shutterSpeedChanged();
+        break;
+    case 13:
+        qDebug() << "Gain" << data.toHex(':');
+        break;
     case 14:
         m_iso=CutePocket::int32at(data, 8);
-        qDebug() << "ISO" << data.toHex(':');
+        qDebug() << "ISO" << data.toHex(':') << m_iso;
         emit isoChanged();
         break;
+    case 15:
+        qDebug() << "LUT" << data.toHex(':');
+        break;
+    case 16:
+        qDebug() << "ND" << data.toHex(':');
+        break;    
     default:
         qDebug() << "Unknown video data" << data.toHex(':') << data.toStdString();
     }
@@ -429,7 +481,25 @@ void CameraDevice::handleVideoData(const QByteArray &data)
  */
 void CameraDevice::handleAudioData(const QByteArray &data)
 {
-    qDebug() << "Unknown audio data" << data.toHex(':') << data.toStdString();
+    switch (data.at(5)) {
+    case 1:
+        qDebug() << "Headphone level" << data.toHex(':');
+        break;
+    case 2:
+        qDebug() << "Headphone program mix" << data.toHex(':');
+        break;
+    case 3:
+        qDebug() << "Input type" << data.toHex(':');
+        break;
+    case 4:
+        qDebug() << "Input levels" << data.toHex(':');
+        break;
+    case 6:
+        qDebug() << "Phantom power" << data.toHex(':');
+        break;
+    default:
+        qDebug() << "Unknown audio data" << data.toHex(':') << data.toStdString();
+    }
 }
 
 /**
@@ -461,9 +531,18 @@ void CameraDevice::handleMediaData(const QByteArray &data)
 
         m_playing=data.at(8)==1 ? true : false;
         emit playingChanged();
+        
+        m_media_speed=data.at(9);
+        m_media_slot_1=data.at(10);
+        m_media_slot_2=data.at(11);
+        
+        qDebug() << "Media" << m_media_speed << m_media_slot_1 << m_media_slot_2;
         break;
     case 2: // Playback
         qDebug() << "Playback" << data.toHex(':');
+        break;
+    case 3:
+        qDebug() << "Capture" << data.toHex(':');
         break;
     default:
         qDebug() << "Unknown video data" << data.toHex(':') << data.toStdString();
@@ -476,7 +555,36 @@ void CameraDevice::handleMediaData(const QByteArray &data)
  */
 void CameraDevice::handleDisplayData(const QByteArray &data)
 {
-    qDebug() << "handleDisplayData" << data.toHex(':');
+    switch (data.at(5)) {
+    case 0:
+        qDebug() << "Brightness" << data.toHex(':');
+        break;
+    case 1:
+        qDebug() << "Exposure and focus tools" << data.toHex(':');
+        break;
+    case 2:
+        qDebug() << "Zebra level" << data.toHex(':');
+        break;
+    case 3:
+        qDebug() << "Peaking level" << data.toHex(':');
+        break;
+    case 4:
+        qDebug() << "Color bar" << data.toHex(':');
+        break;
+    case 5:
+        qDebug() << "Focus assist" << data.toHex(':');
+        break;
+    case 6:
+        qDebug() << "Return feed" << data.toHex(':');
+        break;
+    case 7:
+        qDebug() << "Time display (?)" << data.toHex(':');
+        m_timecodeDisplay=data.at(8)==1 ? true : false;
+        emit timecodeDisplayChanged();
+        break;
+    default:
+        qDebug() << "handleDisplayData" << data.toHex(':');
+    }
 }
 
 /**
@@ -494,7 +602,16 @@ void CameraDevice::handleTallyData(const QByteArray &data)
  */
 void CameraDevice::handleReferenceData(const QByteArray &data)
 {
-    qDebug() << "handleReferenceData" << data.toHex(':');
+    switch (data.at(5)) {
+    case 0:
+        qDebug() << "Reference source" << data.toHex(':');
+        break;
+    case 1:
+        qDebug() << "Reference offset" << data.toHex(':');
+        break;
+    default:
+        qDebug() << "handleReferenceData" << data.toHex(':');
+    }
 }
 
 /**
@@ -849,7 +966,7 @@ bool CameraDevice::restoreAutoWhiteBalance()
     return writeCameraCommand(cmd);
 }
 
-bool CameraDevice::shutterSpeed(qint32 shutter)
+bool CameraDevice::setShutterSpeed(qint32 shutter)
 {
     if (shutter < 24 && shutter > 5000)
         return false;
@@ -911,7 +1028,7 @@ bool CameraDevice::whiteBalance(qint16 wb, qint16 tint)
     return writeCameraCommand(cmd);
 }
 
-bool CameraDevice::gain(qint8 gain)
+bool CameraDevice::setGain(qint8 gain)
 {
     QByteArray cmd(12, 0);
     cmd[0]=0xff; // Destination
@@ -979,6 +1096,23 @@ bool CameraDevice::playback(bool next) {
     cmd[6]=0x01;
     cmd[8]=next ? 1 : 0;
 
+    return writeCameraCommand(cmd);
+}
+
+/*
+ * Time display (?) "ff:05:00:00:04:07:01:02:01"
+ * Time display (?) "ff:05:00:00:04:07:01:02:00"
+ * */
+bool CameraDevice::setDisplay(bool tc) {
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff;
+    cmd[1]=0x05;
+    cmd[4]=0x04;
+    cmd[5]=0x07;
+    cmd[6]=0x01;
+    cmd[6]=0x02;
+    cmd[8]=tc ? 1 : 0;
+    
     return writeCameraCommand(cmd);
 }
 
@@ -1088,4 +1222,14 @@ bool CameraDevice::playing() const
 int CameraDevice::iso() const
 {
     return m_iso;
+}
+
+int CameraDevice::shutterSpeed() const
+{
+    return m_shutterSpeed;
+}
+
+bool CameraDevice::timecodeDisplay() const
+{
+    return m_timecodeDisplay;
 }
