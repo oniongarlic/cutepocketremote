@@ -81,10 +81,17 @@ ApplicationWindow {
                 enabled: cd.connectionReady && !cd.recording && !cd.playing
                 onClicked: cd.play(true);
             }
+            /*
             ToolButton {
                 text: "CCR"
                 enabled: cd.connectionReady
                 onClicked: cd.colorCorrectionReset()
+            }
+            */
+            ToolButton {
+                text: "Slate"
+                enabled: cd.connectionReady
+                onClicked: slateDrawer.open()
             }
         }
     }
@@ -424,6 +431,11 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    Drawer {
+        id: slateDrawer
+        width: parent.width/1.5
     }
     
     ProgressBar {

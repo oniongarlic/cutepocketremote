@@ -231,6 +231,25 @@ private:
     quint8 m_media_speed=0;
     quint8 m_media_slot_1;
     quint8 m_media_slot_2;
+
+    qint16 m_meta_reel;
+    qint8 m_meta_tags;
+    qint8 m_meta_location;
+    qint8 m_meta_day;
+    QString m_meta_scene;
+    qint8 m_meta_take_number;
+    qint8 m_meta_take_tags;
+    QString m_meta_camera_id;
+    QString m_meta_camera_operator;
+    QString m_meta_director;
+    QString m_meta_project_name;
+    QString m_meta_lens_type;
+    QString m_meta_lens_iris;
+    QString m_meta_lens_focal;
+    QString m_meta_lens_distance;
+    QString m_meta_lens_filter;
+    qint8 m_meta_slate_mode;
+    QString m_meta_slate_target;
 };
 
 #endif // CAMERADEVICE_H

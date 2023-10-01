@@ -692,40 +692,48 @@ void CameraDevice::handleMetaData(const QByteArray &data)
     case 1: // Scene tags
         break;
     case 2: // Scene
+        m_meta_scene=data.mid(8);
         break;
     case 3: // Take
+        m_meta_take_number=data.at(8);
+        m_meta_take_tags=data.at(9);
         break;
     case 4:
         break;
     case 5: // ID
-        str=data.mid(8);
+        m_meta_camera_id=data.mid(8);
         break;
     case 6: // Operator
+        m_meta_camera_operator=data.mid(8);
         break;
     case 7: // Director
+        m_meta_director=data.mid(8);
         break;
-    case 8: // Name 
+    case 8: // Name
+        m_meta_project_name=data.mid(8);
         break;
     case 9: // Lens type
-        str=data.mid(8);
+        m_meta_lens_type=data.mid(8);
         break;
     case 10: // Iris
-        str=data.mid(8);
+        m_meta_lens_iris=data.mid(8);
         break;
     case 11: // Focal length
-        str=data.mid(8);
+        m_meta_lens_focal=data.mid(8);
         break;
     case 12: // Distance
-        str=data.mid(8);
+        m_meta_lens_distance=data.mid(8);
         break;
     case 13: // Filter
+        m_meta_lens_filter=data.mid(8);
         break;
     case 14: // Slate mode
+        m_meta_slate_mode=data.at(8);
         break;
     case 15: // Slate target
+        m_meta_slate_target=data.mid(8);
         break;
-    }
-    qDebug() << "Meta" << str;
+    }    
 }
 
 static int bcdtoint(uint8_t v) { return v-6*(v >> 4); }
