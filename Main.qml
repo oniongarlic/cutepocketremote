@@ -48,6 +48,12 @@ ApplicationWindow {
             comboShutter.currentIndex=comboShutter.indexOfValue(shutterSpeed)
         }
         
+        onApertureChanged: {
+            console.debug("Aperture is: "+aperture)
+            let tmp=cd.aperture.toFixed(1);
+            comboAperture.currentIndex=comboAperture.indexOfValue(tmp)
+        }
+        
         onWbChanged: {
             console.debug("WB is:"+wb)
             comboWB.currentIndex=comboWB.indexOfValue(wb)
@@ -126,7 +132,7 @@ ApplicationWindow {
             }
             Label {
                 id: aperture
-                text: cd.connectionReady ? cd.aperture.toFixed(1) : '--'
+                text: cd.connectionReady ? 'f'+cd.aperture.toFixed(1) : '--'
                 font.pixelSize: 24
             }
             Label {
@@ -284,6 +290,36 @@ ApplicationWindow {
                     wheelEnabled: true
                     onValueChanged: {
                         cd.setShutterSpeed(value)
+                    }
+                }
+                
+            }
+            
+            Label {
+                text: "Aperture"
+            }
+            
+            RowLayout {
+                Layout.fillWidth: true
+                
+                ComboBox {
+                    id: comboAperture
+                    model: [ 2.8, 2.9, 3.1, 4.0, 4.2, 5.0, 5.6, 7, 8, 10, 12, 16, 22 ]
+                    onActivated: {
+                        cd.setAperture(currentValue)
+                    }
+                }
+                Slider {
+                    id: apertureSlider
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 1
+                    value: 0
+                    stepSize: 0.05
+                    live: false
+                    wheelEnabled: true
+                    onValueChanged: {
+                        cd.setApertureNormalized(value)
                     }
                 }
                 Button {

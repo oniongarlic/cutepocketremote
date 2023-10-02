@@ -15,6 +15,11 @@ static const QBluetoothUuid Timecode("6D8F2110-86F1-41BF-9AFB-451D87E976C8");
 static const QBluetoothUuid CameraStatus("7FE8691D-95DC-4FC5-8ABD-CA74339B51B9");
 static const QBluetoothUuid DeviceName("FFAC0C52-C9FB-41A0-B063-CC76282EB89C");
 
+static qint16 mapf(double x, double in_min, double in_max, double out_min, double out_max)
+{
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
 static int16_t float2fix(double n)
 {
     unsigned short int int_part = 0, frac_part = 0;
@@ -984,7 +989,7 @@ bool CameraDevice::setShutterSpeed(qint32 shutter)
     cmd[1]=0x08; // Length
     cmd[4]=0x01; // Category
     cmd[5]=0x0C; // Param
-    cmd[6]=0x03;
+    cmd[6]=0x02;
 
     cmd[8]=shutter & 0xff;
     cmd[9]=(shutter >> 8);
@@ -1008,7 +1013,66 @@ bool CameraDevice::setISO(qint32 is)
     cmd[9]=(is >> 8);
     cmd[10]=(is >> 16);
     cmd[11]=(is >> 24);
+    
+    return writeCameraCommand(cmd);
+}
 
+bool CameraDevice::setAperture(double ap)
+{
+    double f;
+    
+    if (ap < 1.0 && ap > 22.0)
+        return false;
+    
+    f=ap*ap;
+    f=log2(f);
+    
+    qDebug() << "AP" << ap << f;
+    
+    quint16 m=float2fix(f);
+    
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x08; // Length
+    cmd[4]=0x00; // Category
+    cmd[5]=0x02; // Param
+    cmd[6]=0x80;
+    
+    cmd[8]=m & 0xff;
+    cmd[9]=(m >> 8);
+    
+    return writeCameraCommand(cmd);
+}
+
+bool CameraDevice::setApertureNormalized(double ap)
+{
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x08; // Length
+    cmd[4]=0x00; // Category
+    cmd[5]=0x03; // Param
+    cmd[6]=0x02;
+    
+    quint16 m=float2fix(ap);
+    
+    cmd[8]=m & 0xff;
+    cmd[9]=(m >> 8);
+    
+    return writeCameraCommand(cmd);
+}
+
+bool CameraDevice::setApertureStep(quint16 apstep)
+{
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x08; // Length
+    cmd[4]=0x00; // Category
+    cmd[5]=0x04; // Param
+    cmd[6]=0x02;
+    
+    cmd[8]=apstep & 0xff;
+    cmd[9]=(apstep >> 8);
+    
     return writeCameraCommand(cmd);
 }
 

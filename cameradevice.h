@@ -92,10 +92,15 @@ public slots:
 
     bool autoFocus();
     bool autoAperture();
+
     bool setShutterSpeed(qint32 shutter);
     bool setGain(qint8 gain);
     bool setISO(qint32 is);
 
+    bool setAperture(double ap);
+    bool setApertureNormalized(double ap);
+    bool setApertureStep(quint16 apstep);
+    
     bool colorCorrectionReset();
 
     bool record(bool record);
@@ -113,6 +118,7 @@ public slots:
     bool colorGain(double r, double g, double b, double l);
     bool colorOffset(double r, double g, double b, double l);
     bool setDisplay(bool tc);
+
 private slots:
     void scanServices(const QString &address);
     void scanServices(const QBluetoothDeviceInfo &device);
