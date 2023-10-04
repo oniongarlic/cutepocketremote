@@ -3,6 +3,8 @@ import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import Qt.labs.qmlmodels
+
 import org.tal
 
 ApplicationWindow {
@@ -468,10 +470,38 @@ ApplicationWindow {
             }
         }
     }
+    
+    TableModel {
+        id: metadataModel
+        TableModelColumn { display: "metadata" }
+        TableModelColumn { display: "value" }
+        
+        rows: [
+            {
+                metadata: "Camera ID",
+                value: 'A'
+            },
+            {
+                metadata: "Camera operator",
+                value: 'Somebody Anonymous'
+            }
+        ]
+    }
 
     Drawer {
         id: slateDrawer
         width: parent.width/1.5
+        height: parent.height
+        
+        TableView {
+            anchors.fill: parent
+            columnSpacing: 2
+            rowSpacing: 1
+            model: metadataModel
+            delegate: ItemDelegate {
+                text: model.display
+            }
+        }
     }
     
     ProgressBar {
