@@ -70,6 +70,12 @@ ApplicationWindow {
         property bool connectionReady: cd.connected && cd.status==3
     }
 
+    Action {
+        id: quitAction
+        shortcut: StandardKey.Quit
+        onTriggered: Qt.quit()
+    }
+
     header: ToolBar {
         RowLayout {
             ToolButton {
@@ -162,15 +168,21 @@ ApplicationWindow {
             RowLayout {
                 id: bc
                 Layout.fillWidth: true
+                Layout.fillHeight: true
                 Layout.margins: 4
                 Layout.alignment: Qt.AlignTop
                 spacing: 8
                 ColumnLayout {
                     id: buttonsContainer
+                    Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
+                    Layout.fillHeight: true
                     Layout.minimumWidth: 100
+                    Layout.maximumWidth: 200
+                    Layout.maximumHeight: 300
                     Button {
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         text: "Record"
                         enabled: !cd.recording
                         highlighted: cd.recording
@@ -178,6 +190,7 @@ ApplicationWindow {
                     }
                     Button {
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         text: "Stop"
                         enabled: cd.recording || cd.playing
                         onClicked: {
@@ -194,14 +207,20 @@ ApplicationWindow {
                 TimeCodeText {
                     id: timeCodeText2
                     Layout.fillWidth: true
+                    Layout.fillHeight: true
                     Layout.margins: 8
-                    height: buttonsContainer.height
-                    font.pixelSize: 42
                     Layout.preferredWidth: 12*42
-                    Layout.minimumWidth: contentWidth
-                    camera: cd
+                    Layout.minimumWidth: 12*28 // contentWidth
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                    height: buttonsContainer.height
+                    minimumPixelSize: 36
+                    font.pixelSize: 64
+                    font.weight: Font.Bold
+                    fontSizeMode:Text.HorizontalFit
                     color: cd.recording ? "red" : "white"
-                    Layout.alignment: Qt.AlignHCenter
+                    style: Text.Outline
+                    styleColor: "black"
+                    camera: cd
                     onClicked: {
                         cd.setDisplay(!cd.timecodeDisplay)
                     }
@@ -209,33 +228,39 @@ ApplicationWindow {
                 GridLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
-                    Layout.minimumWidth: 200
+                    Layout.minimumWidth: 160
+                    Layout.minimumHeight: 120
+                    Layout.maximumHeight: 300
                     rows: 3
                     columns: 2
                     Button {
                         text: "Focus-"
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         onClicked: cd.focus(-100);
                     }
                     Button {
                         text: "Focus+"
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         onClicked: cd.focus(100);
                     }
                     Button {
                         text: "Focus--"
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         onClicked: cd.focus(-500);
                     }
                     Button {
                         text: "Focus++"
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         onClicked: cd.focus(500);
                     }
                     Button {
                         text: "Auto Focus"
                         onClicked: cd.autoFocus()
-                        //Layout.fillHeight: true
+                        Layout.fillHeight: true
                         Layout.fillWidth: true
                         Layout.minimumWidth: 100
                         Layout.columnSpan: 2
@@ -244,6 +269,10 @@ ApplicationWindow {
                 Dial {
                     id: focusDial
                     inputMode: Dial.Horizontal
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 180
+                    Layout.preferredWidth: 200
                     from: -200
                     to: 200
                     stepSize: 10
@@ -267,7 +296,6 @@ ApplicationWindow {
             Label {
                 text: "Shutter speed: "+ cd.shutterSpeed
             }
-
             RowLayout {
                 Layout.fillWidth: true
 
@@ -292,16 +320,13 @@ ApplicationWindow {
                         cd.setShutterSpeed(value)
                     }
                 }
-                
             }
             
             Label {
                 text: "Aperture"
             }
-            
             RowLayout {
                 Layout.fillWidth: true
-                
                 ComboBox {
                     id: comboAperture
                     model: [ 2.8, 2.9, 3.1, 4.0, 4.2, 5.0, 5.6, 7, 8, 10, 12, 16, 22 ]
@@ -331,7 +356,6 @@ ApplicationWindow {
             Label {
                 text: "ISO: "+cd.iso
             }
-
             RowLayout {
                 Layout.fillWidth: true
 
