@@ -43,108 +43,22 @@ static int16_t float2fix(double n)
 
 CameraDevice::CameraDevice()
 {
-    m_discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-    m_discoveryAgent->setLowEnergyDiscoveryTimeout(5000);
-
-    connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &CameraDevice::addCameraDevice);
-    connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceUpdated, this, &CameraDevice::addCameraDevice);
-    connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this, &CameraDevice::deviceScanError);
-    connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &CameraDevice::deviceScanFinished);
-    connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &CameraDevice::deviceScanFinished);
-    
     m_timecode.setHMS(0,0,0,0);
 }
 
 CameraDevice::~CameraDevice()
 {    
     qDeleteAll(m_services);
-    m_cameras.clear();
     m_services.clear();
     if (m_controller) {
         m_controller->disconnectFromDevice();
     }
 }
 
-void CameraDevice::startDeviceDiscovery()
-{    
-    m_cameras.clear();
-    emit devicesUpdated();
-
-    m_discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-
-    if (m_discoveryAgent->isActive()) {
-        m_discovering = true;
-        emit discoveringChanged();
-    }
-    emit discoveryStart();
-}
-
-void CameraDevice::stopDeviceDiscovery()
+void CameraDevice::connectDevice(QBluetoothDeviceInfo *device)
 {
-    if (m_discoveryAgent->isActive())
-        m_discoveryAgent->stop();
-}
-
-/**
- * @brief CameraDevice::addCameraDevice
- * @param info
- *
- * Store found BLE device if it is a BM Camera, by first checking if the CameraService is available.
- * If not, ignore the BLE device.
- *
- */
-void CameraDevice::addCameraDevice(const QBluetoothDeviceInfo &info)
-{       
-    // BMPCC is BLE only so ignore anything else
-    if (info.coreConfigurations()!=QBluetoothDeviceInfo::LowEnergyCoreConfiguration)
-        return;
-
-    // Check if device has BM service 291d567a-6d75-11e6-8b77-86f30ca893d3 ?
-    auto uuids=info.serviceUuids();
-    if (!uuids.contains(BmdCameraService)) {
-        return;
-    }
-
-    qDebug() << "Found BM camera service!";
-    qDebug() << info.address() << info.name() << info.rssi() << info.coreConfigurations() << info.serviceClasses() << info.serviceUuids() << info.manufacturerIds() << info.majorDeviceClass();
-    
-#ifndef Q_OS_WIN32
-    if (info.rssi()==0) {
-        qDebug("Ignoring off-line device");
-        return;
-    }
-#endif
-    
-    if (m_cameras.contains(info.address().toString())) {
-        qDebug("Dup!");
-    } else {
-        QBluetoothDeviceInfo *device = new QBluetoothDeviceInfo(info);
-        m_cameras.insert(device->address().toString(), device);
-    }
-
-    emit devicesUpdated();
-}
-
-/**
- * @brief CameraDevice::deviceScanFinished
- *
- *
- */
-void CameraDevice::deviceScanFinished()
-{
-    m_discovering = false;
-    emit discoveringChanged();
-    if (!m_cameras.isEmpty()) {
-        auto tmp=m_cameras.values();
-        m_currentDevice=tmp.first();
-        scanServices(*m_currentDevice);
-    }
-    emit discoveryStop(m_cameras.count());
-}
-
-QVariant CameraDevice::getDevices()
-{
-    return QVariant::fromValue(m_cameras.values());
+    if (device->isValid())
+        scanServices(*device);
 }
 
 void CameraDevice::scanServices(const QBluetoothDeviceInfo &device)
@@ -156,6 +70,12 @@ void CameraDevice::scanServices(const QBluetoothDeviceInfo &device)
         delete m_controller;
         m_controller = nullptr;
     }
+    
+    if (m_currentDevice) {
+        delete m_currentDevice;
+        m_currentDevice=nullptr;
+    }
+    m_currentDevice=new QBluetoothDeviceInfo(device);
 
     if (!m_controller) {
         m_controller = QLowEnergyController::createCentral(*m_currentDevice, this);
@@ -813,23 +733,9 @@ void CameraDevice::confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const
     qDebug() << "confirmedDescriptorWrite" << d.name() << d.uuid() << value;
 }
 
-void CameraDevice::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error)
-{
-    emit controllerErrorChanged();
-    
-    m_discovering = false;
-
-    emit discoveringChanged();
-}
-
 bool CameraDevice::isConnected() const
 {
     return m_connected;
-}
-
-bool CameraDevice::discovering()
-{
-    return m_discovering;
 }
 
 bool CameraDevice::hasControllerError() const

@@ -19,7 +19,6 @@ class CameraDevice: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool disocvering READ discovering NOTIFY discoveringChanged FINAL)
     Q_PROPERTY(bool controllerError READ hasControllerError NOTIFY controllerErrorChanged FINAL)
 
     Q_PROPERTY(bool recording READ recording NOTIFY recordingChanged FINAL)
@@ -51,7 +50,6 @@ class CameraDevice: public QObject
 public:
     CameraDevice();
     ~CameraDevice();
-    QVariant getDevices();
 
     bool isConnected() const;
 
@@ -83,9 +81,7 @@ public:
     bool timecodeDisplay() const;
     
 public slots:
-    void startDeviceDiscovery();
-    void stopDeviceDiscovery();
-    
+    void connectDevice(QBluetoothDeviceInfo *device);
     void disconnectFromDevice();
 
     bool setCameraName(const QString name);
@@ -124,10 +120,6 @@ private slots:
     void scanServices(const QBluetoothDeviceInfo &device);
     
     void connectToService(const QString &uuid);
-    
-    void addCameraDevice(const QBluetoothDeviceInfo&);
-    void deviceScanFinished();
-    void deviceScanError(QBluetoothDeviceDiscoveryAgent::Error);
 
     void addLowEnergyService(const QBluetoothUuid &uuid);
     void deviceConnected();
@@ -142,16 +134,11 @@ private slots:
     void confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const QByteArray &value);
 
 Q_SIGNALS:
-    void devicesUpdated();        
+    void devicesUpdated();
     void updateChanged();
-    void discoveringChanged();
     void disconnected();
     
     void connectionFailure();
-
-    void discoveryStart();
-    void discoveryStop(qsizetype devices);
-
     void controllerErrorChanged();
 
     void connectedChanged();
@@ -196,9 +183,7 @@ private:
     bool writeCameraCommand(const QByteArray &cmd);
     bool writeCameraName(const QString &name);
 
-    QBluetoothDeviceDiscoveryAgent *m_discoveryAgent;
-
-    QBluetoothDeviceInfo *m_currentDevice;
+    QBluetoothDeviceInfo *m_currentDevice=nullptr;
 
     QHash<QString, QBluetoothDeviceInfo *> m_cameras;
 

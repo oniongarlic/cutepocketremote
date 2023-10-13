@@ -15,19 +15,85 @@ ApplicationWindow {
     visible: true
     color: "grey"
     title: qsTr("CutePocketRemote")
-
-    CameraDevice {
-        id: cd
+    
+    CameraDiscovery {
+        id: disocvery
         onDiscoveryStart: {
             cameraStatus.text='Connecting...'
+            cameraDrawer.open()
         }
         onDiscoveryStop: (devices) => {
-                             if (devices==0)
-                             cameraStatus.text="No cameras found!"
-                             else
+                             if (devices==0) {
+                                 cameraStatus.text="No cameras found!"
+                                 cameraDrawer.close()
+                                 return;
+                             }
                              cameraStatus.text="Found "+devices
+                             var d=getDevices();
+                             deviceList.model=d;
                          }
-
+    }
+    
+    ListModel {
+        id: deviceModel
+    }
+    
+    Drawer {
+        id: cameraDrawer
+        height: parent.height
+        width: parent.width/2
+        interactive: false
+        
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 8
+            Text {
+                id: deviceCount
+                text: "Cameras: "+deviceList.count
+            }
+            ListView {
+                id: deviceList
+                enabled: !disocvery.discovering
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                delegate: ItemDelegate {
+                    text: modelData.name+" ("+modelData.address+")"
+                    onClicked: {
+                        var device=disocvery.getBluetoothDevice(modelData.address);
+                        console.debug(device)
+                        deviceList.currentIndex=index;
+                        cd.connectDevice(device)
+                        cameraDrawer.close()
+                    }
+                }
+            }
+            RowLayout {
+                Button {
+                    enabled: !disocvery.discovering
+                    text: "Refresh"
+                    onClicked: disocvery.startDeviceDiscovery()
+                }
+                Button {
+                    enabled: !disocvery.discovering
+                    text: "Close"
+                    onClicked: {
+                        cameraDrawer.close()
+                    }
+                }
+            }
+        }
+        
+        ProgressBar {
+            id: discoveringProgress
+            anchors.centerIn: parent
+            indeterminate: visible
+            visible: disocvery.discovering
+        }
+    }
+    
+    CameraDevice {
+        id: cd
+        
         onStatusChanged: {
             console.debug("CameraStatus is now: "+status)
             switch (status) {
@@ -71,19 +137,19 @@ ApplicationWindow {
         
         property bool connectionReady: cd.connected && cd.status==3
     }
-
+    
     Action {
         id: quitAction
         shortcut: StandardKey.Quit
         onTriggered: Qt.quit()
     }
-
+    
     header: ToolBar {
         RowLayout {
             ToolButton {
-                text: "Scan and &Connect"
+                text: "Find"
                 enabled: !cd.connected
-                onClicked: cd.startDeviceDiscovery()
+                onClicked: disocvery.startDeviceDiscovery()
             }
             ToolButton {
                 text: "&Disconnect"
@@ -109,7 +175,7 @@ ApplicationWindow {
             }
         }
     }
-
+    
     footer: ToolBar {
         RowLayout {
             anchors.fill: parent
@@ -159,7 +225,7 @@ ApplicationWindow {
             }
         }
     }
-
+    
     StackView {
         anchors.fill: parent
         ColumnLayout {
@@ -294,13 +360,13 @@ ApplicationWindow {
                     }
                 }
             }
-
+            
             Label {
                 text: "Shutter speed: "+ cd.shutterSpeed
             }
             RowLayout {
                 Layout.fillWidth: true
-
+                
                 ComboBox {
                     id: comboShutter
                     model: [24,25,30,50,60,100,120,125,160,200,250,500,1000,2000]
@@ -308,7 +374,7 @@ ApplicationWindow {
                         cd.setShutterSpeed(currentValue)
                     }
                 }
-
+                
                 Slider {
                     id: shutterSpeedSlider
                     Layout.fillWidth: true
@@ -354,13 +420,13 @@ ApplicationWindow {
                     onClicked: cd.autoAperture()
                 }
             }
-
+            
             Label {
                 text: "ISO: "+cd.iso
             }
             RowLayout {
                 Layout.fillWidth: true
-
+                
                 ComboBox {
                     id: comboISO
                     model: [100,125,160,200,250,320,400,500,640,800,1000,1250,1600,2000,2500,3200,4000,5000,6400,8000,10000,12800,16000,20000,25600]
@@ -368,11 +434,11 @@ ApplicationWindow {
                         cd.setISO(currentValue)
                     }
                 }
-
+                
                 Label {
                     text: "Gain: "+gain.value
                 }
-
+                
                 Slider {
                     id: gain
                     Layout.fillWidth: true
@@ -387,7 +453,7 @@ ApplicationWindow {
                     }
                 }
             }
-
+            
             Label {
                 text: "White Balance: "+cd.wb+'K/'+cd.tint
             }
@@ -511,7 +577,7 @@ ApplicationWindow {
             }
         ]
     }
-
+    
     Drawer {
         id: slateDrawer
         width: parent.width/1.5
@@ -528,10 +594,4 @@ ApplicationWindow {
         }
     }
     
-    ProgressBar {
-        id: discoveringProgress
-        anchors.centerIn: parent
-        indeterminate: visible
-        visible: cd.disocvering && !cd.connected
-    }
 }

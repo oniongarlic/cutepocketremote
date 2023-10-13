@@ -6,6 +6,7 @@
 #include <QQuickView>
 #include <QQuickStyle>
 
+#include "cameradiscovery.h"
 #include "cameradevice.h"
 
 #ifdef Q_OS_WIN32
@@ -26,6 +27,8 @@ int main(int argc, char *argv[])
 #endif
 
     qmlRegisterType<CameraDevice>("org.tal", 1,0, "CameraDevice");
+    qmlRegisterType<CameraDiscovery>("org.tal", 1,0, "CameraDiscovery");
+    qRegisterMetaType<QBluetoothDeviceInfo *>("BluetoothDeviceInfo");
 
     QQuickStyle::setStyle("Universal");
 
