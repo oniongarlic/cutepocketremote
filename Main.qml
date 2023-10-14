@@ -43,6 +43,8 @@ ApplicationWindow {
         height: parent.height
         width: parent.width/2
         interactive: false
+        modal: true
+        closePolicy: Popup.NoAutoClose
         
         ColumnLayout {
             anchors.fill: parent
@@ -277,13 +279,14 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.margins: 8
-                    Layout.preferredWidth: 12*42
-                    Layout.minimumWidth: 12*28 // contentWidth
+                    Layout.preferredWidth: 12*32
+                    Layout.minimumWidth: 12*32 // contentWidth
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
                     height: buttonsContainer.height
-                    minimumPixelSize: 36
-                    font.pixelSize: 64
+                    minimumPixelSize: 24
+                    font.pixelSize: 92
                     font.weight: Font.Bold
+                    horizontalAlignment: Text.AlignHCenter
                     fontSizeMode:Text.HorizontalFit
                     color: cd.recording ? "red" : "white"
                     style: Text.Outline
