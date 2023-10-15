@@ -162,6 +162,7 @@ ApplicationWindow {
                 text: "Play"
                 enabled: cd.connectionReady && !cd.recording && !cd.playing
                 onClicked: cd.play(true);
+                icon.name: "play"
             }
             /*
             ToolButton {
@@ -254,6 +255,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         text: "Record"
+                        icon.name: "media-record"
                         enabled: !cd.recording
                         highlighted: cd.recording
                         onClicked: cd.record(true)
@@ -262,6 +264,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         text: "Stop"
+                        icon.name: "media-playback-stop"
                         enabled: cd.recording || cd.playing
                         onClicked: {
                             cd.record(false) // false=stop
@@ -270,6 +273,7 @@ ApplicationWindow {
                     Button {
                         Layout.fillWidth: true
                         text: "Capture"
+                        icon.name: "camera-photo"
                         enabled: cd.connectionReady && !cd.recording && !cd.playing
                         onClicked: cd.captureStill()
                     }
@@ -330,6 +334,7 @@ ApplicationWindow {
                     }
                     Button {
                         text: "Auto Focus"
+                        icon.name: "zoom-fit-best"
                         onClicked: cd.autoFocus()
                         Layout.fillHeight: true
                         Layout.fillWidth: true
