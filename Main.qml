@@ -412,7 +412,10 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 ComboBox {
                     id: comboAperture
-                    model: [ 2.8, 2.9, 3.1, 4.0, 4.2, 5.0, 5.6, 7, 8, 10, 12, 16, 22 ]
+                    model: [ 2.8, 2.9, 3.1,
+                        4.0, 4.2, 4.4, 4.6, 4.8,
+                        5.0, 5.2, 5.4, 5.6, 5.9, 6.2, 6.4, 6.7,
+                        7.0, 8.0, 10.0, 11.0, 12.0, 13.0, 14.0, 16.0, 20.0, 21.0, 22.0 ]
                     displayText: "f/"+currentText
                     onActivated: {
                         cd.setAperture(currentValue)
