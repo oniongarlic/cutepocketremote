@@ -214,6 +214,7 @@ private:
     qint32 m_shutterSpeed=0;
     double m_aperture=0.0;
     double m_aperture_norm=0.0;
+    qint8 m_autoExposureMode=1;
     
     bool m_timecodeDisplay=false;
 

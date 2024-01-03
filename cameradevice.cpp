@@ -303,7 +303,11 @@ void CameraDevice::handleLensData(const QByteArray &data)
         uint16_t v =  CutePocket::uint16at(data, 8);
 
         m_aperture = sqrt(pow(2.0f, ((double)(v) / 2048.0f)));
-        qDebug() << "Aperture f" << data.toHex(':') << v << m_aperture;
+        qDebug() << "Aperture raw" << data.toHex(':') << v << m_aperture;
+        
+        m_aperture=round(m_aperture*10.0f)/10.0f;
+        
+        qDebug() << "Rounded"<< m_aperture;
 
         emit apertureChanged();
     }
@@ -371,7 +375,8 @@ void CameraDevice::handleVideoData(const QByteArray &data)
         qDebug() << "Format" << data.toHex(':');
         break;
     case 10:
-        qDebug() << "AutoExposureMode" << data.toHex(':');
+        m_autoExposureMode=data.at(8);
+        qDebug() << "AutoExposureMode" << m_autoExposureMode;
         break;
     case 11:
         qDebug() << "Shutter Angle" << data.toHex(':');

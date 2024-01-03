@@ -11,10 +11,13 @@ ApplicationWindow {
     width: 800
     height: 480
     minimumHeight: 480
-    minimumWidth: 640
+    minimumWidth: 800
     visible: true
     color: "grey"
     title: qsTr("CutePocketRemote")
+    
+    property bool smallInterface: height>500 ? false : true
+    property int smallFontSize: smallInterface ? 16 : 24
     
     CameraDiscovery {
         id: disocvery
@@ -119,8 +122,9 @@ ApplicationWindow {
         }
         
         onApertureChanged: {
-            console.debug("Aperture is: "+aperture)
+            console.debug("Aperture is: "+cd.aperture)
             let tmp=cd.aperture.toFixed(1);
+            console.log(tmp)
             comboAperture.currentIndex=comboAperture.indexOfValue(tmp)
         }
         
@@ -185,46 +189,47 @@ ApplicationWindow {
             Label {
                 id: cameraStatus
                 text: ''
-                font.pixelSize: 24
+                font.pixelSize: smallFontSize
                 Layout.alignment: Qt.AlignLeft
             }
             Label {
                 id: cameraName
                 text: cd.connected ? cd.name : 'N/A'
-                font.pixelSize: 24
+                font.pixelSize: smallFontSize
                 Layout.alignment: Qt.AlignLeft
             }
             Label {
                 id: zoom
                 text: cd.connectionReady ? cd.zoom : '--'
-                font.pixelSize: 24
+                font.pixelSize: smallFontSize
             }
             Label {
                 text: cd.connectionReady ? cd.iso : '---'
-                font.pixelSize: 24
+                font.pixelSize: smallFontSize
             }
             Label {
                 text: cd.connectionReady ? '1/'+cd.shutterSpeed : '-/--'
-                font.pixelSize: 24
+                font.pixelSize: smallFontSize
             }
             Label {
                 id: aperture
                 text: cd.connectionReady ? 'f'+cd.aperture.toFixed(1) : '--'
-                font.pixelSize: 24
+                font.pixelSize: smallFontSize
             }
             Label {
                 text: cd.connectionReady ? cd.wb+"K" : '--'
-                font.pixelSize: 24
+                font.pixelSize: smallFontSize
             }
             Label {
                 text: cd.connectionReady ? cd.tint : '--'
-                font.pixelSize: 24
+                font.pixelSize: smallFontSize
             }
             TimeCodeText {
                 id: timeCodeText
                 Layout.preferredWidth: 12*24
                 camera: cd
                 Layout.alignment: Qt.AlignRight
+                font.pixelSize: smallFontSize
             }
         }
     }
@@ -234,15 +239,15 @@ ApplicationWindow {
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 4
-            spacing: 8
+            spacing: 4
             enabled: cd.connectionReady
             RowLayout {
                 id: bc
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.margins: 4
+                Layout.margins: 0
                 Layout.alignment: Qt.AlignTop
-                spacing: 8
+                spacing: 4
                 ColumnLayout {
                     id: buttonsContainer
                     Layout.alignment: Qt.AlignTop
@@ -272,6 +277,7 @@ ApplicationWindow {
                     }
                     Button {
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         text: "Capture"
                         icon.name: "camera-photo"
                         enabled: cd.connectionReady && !cd.recording && !cd.playing
@@ -282,12 +288,12 @@ ApplicationWindow {
                     id: timeCodeText2
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.margins: 8
+                    Layout.margins: 4
                     Layout.preferredWidth: 12*32
-                    Layout.minimumWidth: 12*32 // contentWidth
+                    Layout.minimumWidth: 12*18 // contentWidth
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
                     height: buttonsContainer.height
-                    minimumPixelSize: 24
+                    minimumPixelSize: 18
                     font.pixelSize: 92
                     font.weight: Font.Bold
                     horizontalAlignment: Text.AlignHCenter
@@ -303,7 +309,7 @@ ApplicationWindow {
                 GridLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
-                    Layout.minimumWidth: 160
+                    Layout.minimumWidth: 130
                     Layout.minimumHeight: 120
                     Layout.maximumHeight: 300
                     rows: 3
@@ -371,6 +377,7 @@ ApplicationWindow {
             
             Label {
                 text: "Shutter speed: "+ cd.shutterSpeed
+                visible: !smallInterface
             }
             RowLayout {
                 Layout.fillWidth: true
@@ -400,12 +407,18 @@ ApplicationWindow {
             
             Label {
                 text: "Aperture"
+                visible: !smallInterface
             }
             RowLayout {
                 Layout.fillWidth: true
                 ComboBox {
                     id: comboAperture
-                    model: [ 2.8, 2.9, 3.1, 4.0, 4.2, 5.0, 5.6, 7, 8, 10, 12, 16, 22 ]
+                    model: [ '2.8', '2.9', '3.1',
+                        '4.0', '4.2', '4.4', '4.6', '4.8',
+                        '5.0', '5.2', '5.4', '5.6', '5.9', '6.2', '6.4', '6.7',
+                        '7.0', '8.0', '10.0', '11.0', '12.0',
+                        '13.0', '14.0', '15.0', '16.0', '17.0', '18.0', '19.0', '20.0', '21.0', '22.0' ]
+                    displayText: "f/"+currentText
                     onActivated: {
                         cd.setAperture(currentValue)
                     }
@@ -424,6 +437,8 @@ ApplicationWindow {
                     }
                 }
                 Button {
+                    id: autoApertureButton
+                    Layout.fillWidth: false
                     text: "Auto\nAperture"
                     onClicked: cd.autoAperture()
                 }
@@ -431,6 +446,7 @@ ApplicationWindow {
             
             Label {
                 text: "ISO: "+cd.iso
+                visible: !smallInterface
             }
             RowLayout {
                 Layout.fillWidth: true
@@ -438,6 +454,7 @@ ApplicationWindow {
                 ComboBox {
                     id: comboISO
                     model: [100,125,160,200,250,320,400,500,640,800,1000,1250,1600,2000,2500,3200,4000,5000,6400,8000,10000,12800,16000,20000,25600]
+                    displayText: "ISO "+currentText
                     onActivated: {
                         cd.setISO(currentValue)
                     }
@@ -464,15 +481,30 @@ ApplicationWindow {
             
             Label {
                 text: "White Balance: "+cd.wb+'K/'+cd.tint
+                visible: !smallInterface
             }
             
             RowLayout {
                 spacing: 4
-                ComboBox {
-                    id: comboWB
-                    model: [3200,3600,4000,4600,5600,6500,7500]
-                    onActivated: {
-                        cd.whiteBalance(currentValue, spinTint.value)
+                ColumnLayout {
+                    ComboBox {
+                        id: comboWB
+                        model: [3200,3600,4000,4600,5600,6500,7500]
+                        displayText: currentText+"K"
+                        onActivated: {
+                            cd.whiteBalance(currentValue, spinTint.value)
+                        }
+                    }
+                    SpinBox {
+                        id: spinTint
+                        Layout.fillWidth: true
+                        from: -50
+                        to: 50
+                        value: cd.connectionReady ? cd.tint : 0
+                        wheelEnabled: true
+                        onValueModified: {
+                            cd.whiteBalance(sliderWb.value, value)
+                        }
                     }
                 }
                 ColumnLayout {
@@ -495,17 +527,7 @@ ApplicationWindow {
                             userMoved=false
                         }
                     }
-                    SpinBox {
-                        id: spinTint
-                        Layout.fillWidth: true
-                        from: -50
-                        to: 50
-                        value: cd.connectionReady ? cd.tint : 0
-                        wheelEnabled: true
-                        onValueModified: {
-                            cd.whiteBalance(sliderWb.value, value)
-                        }
-                    }
+                    
                 }
                 ColumnLayout {
                     Button {
