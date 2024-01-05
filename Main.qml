@@ -366,7 +366,7 @@ ApplicationWindow {
                     Timer {
                         interval: 200
                         repeat: true
-                        running: focusDial.pressed
+                        running: focusDial.pressed || focusDial.value!=0
                         onTriggered: {
                             console.debug("RelFocus: "+focusDial.value)
                             if (focusDial.value==0)
