@@ -189,10 +189,15 @@ void CameraDevice::errorReceived(QLowEnergyController::Error error)
 
 void CameraDevice::disconnectFromDevice()
 {
-    if (m_controller->state() != QLowEnergyController::UnconnectedState)
+    qDebug() << "State is " << m_controller->state();
+    
+    if (m_controller->state() != QLowEnergyController::UnconnectedState) {
+        qDebug() << "Disconnecting from device";
         m_controller->disconnectFromDevice();
-    else
+    } else {
+        qDebug() << "Not connected ?";
         deviceDisconnected();
+    }
 }
 
 bool CameraDevice::setCameraName(const QString name)
@@ -223,6 +228,7 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
     auto service = qobject_cast<QLowEnergyService *>(sender());
     if (!service) {
         qDebug() << "... invalid service?";
+        qDebug() << "State is " << m_controller->state();
         return;
     }
 
@@ -238,6 +244,7 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
     
     if (service->state()==QLowEnergyService::InvalidService) {
         qDebug() << "Invalid service, disconnected from device ?";
+        qDebug() << "State is " << m_controller->state();
         return;
     }
     

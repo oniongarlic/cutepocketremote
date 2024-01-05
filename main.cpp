@@ -26,6 +26,10 @@ int main(int argc, char *argv[])
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
 #endif
 
+#ifdef Q_OS_WIN32
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth.windows = true"));
+#endif
+    
     qmlRegisterType<CameraDevice>("org.tal", 1,0, "CameraDevice");
     qmlRegisterType<CameraDiscovery>("org.tal", 1,0, "CameraDiscovery");
     qRegisterMetaType<QBluetoothDeviceInfo *>("BluetoothDeviceInfo");

@@ -54,7 +54,7 @@ ApplicationWindow {
             anchors.margins: 8
             Text {
                 id: deviceCount
-                text: "Cameras: "+deviceList.count
+                text: "Cameras: "+disocvery.count
             }
             ListView {
                 id: deviceList
@@ -63,6 +63,8 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 delegate: ItemDelegate {
                     text: modelData.name+" ("+modelData.address+")"
+                    font.italic: modelData.rssi==0 ? true : false
+                    enabled: modelData.rssi!=0
                     onClicked: {
                         var device=disocvery.getBluetoothDevice(modelData.address);
                         console.debug(device)
