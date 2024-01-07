@@ -843,7 +843,7 @@ bool CameraDevice::autoFocus()
     return writeCameraCommand(cmd);
 }
 
-bool CameraDevice::focus(qint16 focus)
+bool CameraDevice::focus(qint16 focus, bool relative)
 {
     if (focus < -2048 && focus > 2048)
         return false;
@@ -857,7 +857,7 @@ bool CameraDevice::focus(qint16 focus)
     cmd[4]=0x00; // Category
     cmd[5]=0x00; // Param
     cmd[6]=0x80;
-    cmd[7]=0x01; // 0=Absolute MFT, 1=Relative EF
+    cmd[7]=relative ? 0x01 : 0x00; // 0=Absolute MFT, 1=Relative EF
     cmd[8]=focus & 0xff;
     cmd[9]=(focus >> 8);
     

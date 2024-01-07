@@ -107,7 +107,7 @@ public slots:
     bool autoWhitebalance();
     bool restoreAutoWhiteBalance();
 
-    bool focus(qint16 focus);
+    bool focus(qint16 focus, bool relative=true);
     bool playback(bool next);
     bool colorLift(double r, double g, double b, double l);
     bool colorGamma(double r, double g, double b, double l);
