@@ -108,13 +108,15 @@ public slots:
     bool restoreAutoWhiteBalance();
 
     bool focus(qint16 focus, bool relative=true);
+    bool zoom(double zoom);
+    
     bool playback(bool next);
     bool colorLift(double r, double g, double b, double l);
     bool colorGamma(double r, double g, double b, double l);
     bool colorGain(double r, double g, double b, double l);
     bool colorOffset(double r, double g, double b, double l);
     bool setDisplay(bool tc);
-
+    
 private slots:
     void scanServices(const QString &address);
     void scanServices(const QBluetoothDeviceInfo &device);
@@ -151,7 +153,8 @@ Q_SIGNALS:
     void tintChanged();
 
     void nameChanged();
-
+    
+    void autoFocusTriggered();
     void zoomChanged();
 
     void apertureChanged();
