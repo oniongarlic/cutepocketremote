@@ -116,6 +116,11 @@ ApplicationWindow {
             }
         }
         
+        onAutoFocusTriggered: {
+            console.debug("Autofocusing...")
+            setTimedMessage('AutoFocus');
+        }
+        
         onIsoChanged: {
             console.debug("ISO is:"+iso)
             comboISO.currentIndex=comboISO.indexOfValue(iso)
@@ -241,6 +246,19 @@ ApplicationWindow {
         }
     }
     
+    Timer {
+        id: timerMessageTimer
+        interval: 2000
+        triggeredOnStart: false
+        repeat: false
+        onTriggered: timedMessage.text=''
+    }
+    
+    function setTimedMessage(msg) {
+        timedMessage.text=msg;
+        timerMessageTimer.start()
+    }
+    
     footer: ToolBar {
         RowLayout {
             anchors.fill: parent
@@ -253,6 +271,12 @@ ApplicationWindow {
             Label {
                 id: cameraName
                 text: cd.connected ? cd.name : 'N/A'
+                font.pixelSize: smallFontSize
+                Layout.alignment: Qt.AlignLeft
+            }
+            Label {
+                id: timedMessage
+                text: ''
                 font.pixelSize: smallFontSize
                 Layout.alignment: Qt.AlignLeft
             }
