@@ -23,6 +23,7 @@ qt_add_qml_module(appCutePocketRemote
     SOURCES cameradiscovery.h cameradiscovery.cpp
     QML_FILES RelativeFocus.qml
     QML_FILES AbsoluteFocus.qml
+    QML_FILES Zoom.qml
 )
 
 target_link_libraries(appCutePocketRemote PUBLIC

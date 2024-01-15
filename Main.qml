@@ -189,19 +189,28 @@ ApplicationWindow {
             }
         }
         Menu {
-            title: "Focus"
+            title: "Lens control"
             MenuItem {
                 id: menuFocusRelative
-                text: "Relative"
+                text: "Relative Focus"
                 checkable: true
                 checked: true
                 ButtonGroup.group: focusGroup
             }
             MenuItem {
                 id: menuFocusAbsolute
-                text: "Absolute"
+                text: "Absolute Focus"
                 checkable: true
                 ButtonGroup.group: focusGroup
+            }
+            MenuSeparator {
+                
+            }
+            MenuItem {
+                id: menuZoomEnabled
+                text: "Show zoom"
+                checkable: true
+                checked: false
             }
         }
     }
@@ -337,6 +346,7 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     Layout.minimumWidth: 100
                     Layout.maximumWidth: 200
+                    Layout.minimumHeight: 100
                     Layout.maximumHeight: 300
                     Button {
                         Layout.fillWidth: true
@@ -397,6 +407,12 @@ ApplicationWindow {
                 AbsoluteFocus {
                     cd: cd
                     visible: !relativeFocus
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                }
+                Zoom {
+                    cd: cd
+                    visible: menuZoomEnabled.checked
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                 }
