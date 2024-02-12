@@ -231,6 +231,17 @@ ApplicationWindow {
     
     StackView {
         anchors.fill: parent
+        focus: true
+        Keys.enabled: true
+        Keys.onPressed: {
+            switch (event.key) {
+            case Qt.Key_F2:
+                if (!cd.connected)
+                    disocvery.startDeviceDiscovery()
+                event.accepted=true;
+                break;
+            }
+        }
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 4
