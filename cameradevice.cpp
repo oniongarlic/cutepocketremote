@@ -189,10 +189,15 @@ void CameraDevice::errorReceived(QLowEnergyController::Error error)
 
 void CameraDevice::disconnectFromDevice()
 {
-    if (m_controller->state() != QLowEnergyController::UnconnectedState)
+    qDebug() << "State is " << m_controller->state();
+    
+    if (m_controller->state() != QLowEnergyController::UnconnectedState) {
+        qDebug() << "Disconnecting from device";
         m_controller->disconnectFromDevice();
-    else
+    } else {
+        qDebug() << "Not connected ?";
         deviceDisconnected();
+    }
 }
 
 bool CameraDevice::setCameraName(const QString name)
@@ -223,6 +228,7 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
     auto service = qobject_cast<QLowEnergyService *>(sender());
     if (!service) {
         qDebug() << "... invalid service?";
+        qDebug() << "State is " << m_controller->state();
         return;
     }
 
@@ -238,6 +244,7 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
     
     if (service->state()==QLowEnergyService::InvalidService) {
         qDebug() << "Invalid service, disconnected from device ?";
+        qDebug() << "State is " << m_controller->state();
         return;
     }
     
@@ -291,42 +298,52 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
  */
 void CameraDevice::handleLensData(const QByteArray &data)
 {
+    uint16_t v;
+        
     switch (data.at(5)) {
     case 0: // Focus
-        qDebug() << "Focus" << data.toHex(':');
+        v = CutePocket::uint16at(data, 8);
+        
+        qDebug() << "Focus norm" <<v << data.toHex(':');
         break;
     case 1:
         qDebug() << "AutoFocus triggered" << data.toHex(':');
+        
+        emit autoFocusTriggered();
         break;
     case 2: // Aperture f-stop
     {
         uint16_t v =  CutePocket::uint16at(data, 8);
 
         m_aperture = sqrt(pow(2.0f, ((double)(v) / 2048.0f)));
-        qDebug() << "Aperture f" << data.toHex(':') << v << m_aperture;
+        qDebug() << "Aperture raw" << data.toHex(':') << v << m_aperture;
+        
+        m_aperture=round(m_aperture*10.0f)/10.0f;
+        
+        qDebug() << "Rounded"<< m_aperture;
 
         emit apertureChanged();
     }
         break;
     case 3: // Aperture normalized
-    {
-        uint16_t v = CutePocket::uint16at(data, 8); // data[8] + (data[9] << 8);
-
+        v = CutePocket::uint16at(data, 8); // data[8] + (data[9] << 8);
         qDebug() << "Aperture norm" << data.toHex(':') << v;
         m_aperture_norm=v;
-    }
     break;
     case 6:
         qDebug() << "OIS" << data.toHex(':');
         break;
-    case 7: // Zoom
-        m_zoom= CutePocket::uint16at(data, 8);
+    case 7: // Zoom mm
+        m_zoom = CutePocket::uint16at(data, 8);
         emit zoomChanged();
         qDebug() << "Zoom" << data.toHex(':') << m_zoom;
         break;
-    case 8:
-    case 9:
-        qDebug() << "Zoom?" << data.toHex(':');
+    case 8: // Zoom normalized
+        v = CutePocket::uint16at(data, 8);
+        qDebug() << "Zoom normalized" << v << data.toHex(':');
+        break;
+    case 9: // Zoom continuous
+        qDebug() << "Zooming" << data.toHex(':');
         break;
     default:
         qDebug() << "Unknown lens data" << data.toHex(':') << data.toStdString();
@@ -371,7 +388,8 @@ void CameraDevice::handleVideoData(const QByteArray &data)
         qDebug() << "Format" << data.toHex(':');
         break;
     case 10:
-        qDebug() << "AutoExposureMode" << data.toHex(':');
+        m_autoExposureMode=data.at(8);
+        qDebug() << "AutoExposureMode" << m_autoExposureMode;
         break;
     case 11:
         qDebug() << "Shutter Angle" << data.toHex(':');
@@ -831,7 +849,7 @@ bool CameraDevice::autoFocus()
     return writeCameraCommand(cmd);
 }
 
-bool CameraDevice::focus(qint16 focus)
+bool CameraDevice::focus(qint16 focus, bool relative)
 {
     if (focus < -2048 && focus > 2048)
         return false;
@@ -845,7 +863,7 @@ bool CameraDevice::focus(qint16 focus)
     cmd[4]=0x00; // Category
     cmd[5]=0x00; // Param
     cmd[6]=0x80;
-    cmd[7]=0x01; // 0=Absolute MFT, 1=Relative EF
+    cmd[7]=relative ? 0x01 : 0x00; // 0=Absolute MFT, 1=Relative EF
     cmd[8]=focus & 0xff;
     cmd[9]=(focus >> 8);
     
@@ -860,6 +878,27 @@ bool CameraDevice::autoAperture()
     cmd[4]=0x00; // Category
     cmd[5]=0x05; // Param
 
+    return writeCameraCommand(cmd);
+}
+
+bool CameraDevice::zoom(double zoom)
+{
+    if (zoom < 0.0f && zoom > 1.0f)
+        return false;
+    
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x08; // Length
+    cmd[4]=0x00; // Category
+    cmd[5]=0x08; // Normalized zoom 0-1
+    cmd[6]=0x80;
+    cmd[7]=0x00;
+    
+    qint16 v=mapf(zoom, 0, 1.0, 0, 2047.0);
+    
+    cmd[8]=v & 0xff;
+    cmd[9]=(v >> 8);
+    
     return writeCameraCommand(cmd);
 }
 

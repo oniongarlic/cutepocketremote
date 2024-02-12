@@ -13,19 +13,27 @@ CameraDiscovery::CameraDiscovery(QObject *parent)
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this, &CameraDiscovery::deviceScanError);
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &CameraDiscovery::deviceScanFinished);
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &CameraDiscovery::deviceScanFinished);
-
 }
 
 CameraDiscovery::~CameraDiscovery()
-{    
+{
+    clearDevices();
+}
+
+void CameraDiscovery::clearDevices()
+{
     m_cameras.clear();
+    
+    qDeleteAll(m_devices);
     m_devices.clear();
+    
+    emit countChanged();
+    emit devicesUpdated();
 }
 
 void CameraDiscovery::startDeviceDiscovery()
-{    
-    m_cameras.clear();
-    emit devicesUpdated();
+{
+    clearDevices();
     
     if (m_discoveryAgent->isActive())
         return;
@@ -80,28 +88,23 @@ void CameraDiscovery::addCameraDevice(const QBluetoothDeviceInfo &info)
     }
     
     qDebug() << "Found BM camera service!";
-    qDebug() << info.address() << info.name() << info.rssi();
+    qDebug() << info.address() << info.name() << info.rssi() << info.isCached();
     
-#ifndef Q_OS_WIN32
-    if (info.rssi()==0) {
-        qDebug("Ignoring off-line device");
-        return;
-    }
-#endif
+// #ifndef Q_OS_WIN32
+//     if (info.rssi()==0) {
+//         qDebug("Ignoring off-line device");
+//         return;
+//     }
+// #endif
     
+    QBluetoothDeviceInfo *device=new QBluetoothDeviceInfo(info);
     if (m_devices.contains(info.address().toString())) {
-        qDebug("Dup!");
-    } else {
-        QBluetoothDeviceInfo *device=new QBluetoothDeviceInfo(info);
-        QVariantMap dev;
-        
-        dev.insert("address", info.address().toString());
-        dev.insert("name", info.name());
-        
-        m_cameras.append(dev);
-        m_devices.insert(info.address().toString(), device);
+        QBluetoothDeviceInfo *tmp=m_devices.take(info.address().toString());
+        delete tmp;
     }
+    m_devices.insert(info.address().toString(), device);
     
+    emit countChanged();
     emit devicesUpdated();
 }
 
@@ -113,6 +116,18 @@ void CameraDiscovery::addCameraDevice(const QBluetoothDeviceInfo &info)
 void CameraDiscovery::deviceScanFinished()
 {
     m_discovering = false;
+    
+    QBluetoothDeviceInfo *info;
+    foreach (info, m_devices) {
+        QVariantMap dev;
+        
+        dev.insert("address", info->address().toString());
+        dev.insert("name", info->name());
+        dev.insert("rssi", info->rssi());
+        
+        m_cameras.append(dev);
+    }
+    
     emit discoveringChanged();
     emit discoveryStop(m_cameras.count());
 }
@@ -133,4 +148,9 @@ QBluetoothDeviceInfo *CameraDiscovery::getBluetoothDevice(QString address)
 QVariantList CameraDiscovery::getDevices()
 {
     return m_cameras;
+}
+
+int CameraDiscovery::count() const
+{
+    return m_devices.size();
 }

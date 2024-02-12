@@ -11,12 +11,15 @@ class CameraDiscovery : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool discovering READ discovering NOTIFY discoveringChanged FINAL)
+    Q_PROPERTY(int count READ count NOTIFY countChanged FINAL)
     QML_ELEMENT
     QML_SINGLETON
 public:
     explicit CameraDiscovery(QObject *parent = nullptr);
     
     ~CameraDiscovery();
+    int count() const;
+    
 public slots:
     void stopDeviceDiscovery();
     void startDeviceDiscovery();
@@ -30,7 +33,9 @@ signals:
     void devicesUpdated();
     void discoveringChanged();
     void controllerErrorChanged();
-
+    
+    void countChanged();
+    
 protected:
     bool discovering();
 private slots:
@@ -43,6 +48,7 @@ private:
     QVariantList m_cameras;
     QMap<QString, QBluetoothDeviceInfo *> m_devices;
     bool m_discovering=false;
+    void clearDevices();
 };
 
 #endif // CAMERADISCOVERY_H
