@@ -491,6 +491,26 @@ ApplicationWindow {
                     }
                 }
                 Button {
+                    Layout.fillWidth: false
+                    text: "f/4.0"
+                    onClicked: cd.setAperture('4.0')
+                }
+                Button {
+                    Layout.fillWidth: false
+                    text: "f/5.6"
+                    onClicked: cd.setAperture('5.6')
+                }
+                Button {
+                    Layout.fillWidth: false
+                    text: "f/6.2"
+                    onClicked: cd.setAperture('6.2')
+                }
+                Button {
+                    Layout.fillWidth: false
+                    text: "f/8.0"
+                    onClicked: cd.setAperture('8.0')
+                }
+                Button {
                     id: autoApertureButton
                     Layout.fillWidth: false
                     text: "Auto\nAperture"
@@ -529,6 +549,34 @@ ApplicationWindow {
                     wheelEnabled: true
                     onValueChanged: {
                         cd.setGain(value)
+                    }
+                }
+                Button {
+                    Layout.fillWidth: true
+                    text: "400"
+                    onClicked: {
+                        cd.setISO(400)
+                    }
+                }
+                Button {
+                    Layout.fillWidth: true
+                    text: "600"
+                    onClicked: {
+                        cd.setISO(600)
+                    }
+                }
+                Button {
+                    Layout.fillWidth: true
+                    text: "800"
+                    onClicked: {
+                        cd.setISO(800)
+                    }
+                }
+                Button {
+                    Layout.fillWidth: true
+                    text: "3200"
+                    onClicked: {
+                        cd.setISO(3200)
                     }
                 }
             }
