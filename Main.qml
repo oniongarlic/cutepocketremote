@@ -19,7 +19,7 @@ ApplicationWindow {
     
     property bool smallInterface: height>500 ? false : true
     property int smallFontSize: smallInterface ? 16 : 24
-
+    
     property bool relativeFocus: menuFocusRelative.checked
     
     CameraDiscovery {
@@ -159,7 +159,7 @@ ApplicationWindow {
         shortcut: StandardKey.Quit
         onTriggered: Qt.quit()
     }
-
+    
     menuBar: MenuBar {
         id: mainMenu
         visible: !smallInterface
@@ -214,12 +214,12 @@ ApplicationWindow {
             }
         }
     }
-
+    
     ButtonGroup {
         id: focusGroup
         onClicked: (button) => {
-
-        }
+                       
+                   }
     }
     
     header: ToolBar {
@@ -315,6 +315,10 @@ ApplicationWindow {
                 text: cd.connectionReady ? cd.tint : '--'
                 font.pixelSize: smallFontSize
             }
+            Label {
+                text: cd.connectionReady ? 'Take: '+cd.metaTakeNumber : ''
+            }
+            
             TimeCodeText {
                 id: timeCodeText
                 Layout.preferredWidth: 12*24
@@ -409,23 +413,33 @@ ApplicationWindow {
                         cd.setDisplay(!cd.timecodeDisplay)
                     }
                 }
-                RelativeFocus {
-                    cd: cd
-                    visible: relativeFocus
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
+                ColumnLayout {
+                    RelativeFocus {
+                        cd: cd
+                        visible: relativeFocus
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignTop
+                    }
+                    AbsoluteFocus {
+                        cd: cd
+                        visible: !relativeFocus
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignTop
+                    }
+                    Label {
+                        text: cd.metaLensDistance
+                    }
+                    Label {
+                        text: cd.metaLensFocal
+                    }
                 }
-                AbsoluteFocus {
-                    cd: cd
-                    visible: !relativeFocus
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
-                }
-                Zoom {
-                    cd: cd
-                    visible: menuZoomEnabled.checked
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
+                ColumnLayout {
+                    Zoom {
+                        cd: cd
+                        visible: menuZoomEnabled.checked
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignTop
+                    }
                 }
             }
             
@@ -701,12 +715,36 @@ ApplicationWindow {
         rows: [
             {
                 metadata: "Camera ID",
-                value: 'A'
+                value: cd.metaCameraID
             },
             {
                 metadata: "Camera operator",
-                value: 'Somebody Anonymous'
-            }
+                value: cd.metaCameraOperator
+            },
+            {
+                metadata: "Director",
+                value: cd.metaDirector
+            },
+            {
+                metadata: "Project name",
+                value: cd.metaProjectName
+            },
+            {
+                metadata: "Lens type",
+                value: cd.metaLensType
+            },
+            {
+                metadata: "Lens iris",
+                value: cd.metaLensIris
+            },
+            {
+                metadata: "Lens focal",
+                value: cd.metaLensFocal
+            },
+            {
+                metadata: "Lens distance",
+                value: cd.metaLensDistance
+            },
         ]
     }
     

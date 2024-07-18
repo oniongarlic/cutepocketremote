@@ -43,7 +43,31 @@ class CameraDevice: public QObject
 
     Q_PROPERTY(QTime timecode READ timecode NOTIFY timecodeChanged FINAL)
     Q_PROPERTY(bool timecodeDisplay READ timecodeDisplay NOTIFY timecodeDisplayChanged FINAL)
+    
+    Q_PROPERTY(qint8 metaTakeNumber READ metaTakeNumber NOTIFY metaTakeNumberChanged FINAL)
 
+    Q_PROPERTY(QString metaScene READ metaScene NOTIFY metaSceneChanged FINAL)
+    
+    Q_PROPERTY(QString metaCameraID READ metaCameraID NOTIFY metaCameraIDChanged FINAL)
+    
+    Q_PROPERTY(QString metaCameraOperator READ metaCameraOperator NOTIFY metaCameraOperatorChanged FINAL)
+    
+    Q_PROPERTY(QString metaDirector READ metaDirector NOTIFY metaDirectorChanged FINAL)
+    
+    Q_PROPERTY(QString metaProjectName READ metaProjectName NOTIFY metaProjectNameChanged FINAL)
+    
+    Q_PROPERTY(QString metaLensType READ metaLensType NOTIFY metaLensTypeChanged FINAL)
+    
+    Q_PROPERTY(QString metaLensIris READ metaLensIris NOTIFY metaLensIrisChanged FINAL)
+    
+    Q_PROPERTY(QString metaLensFocal READ metaLensFocal NOTIFY metaLensFocalChanged FINAL)
+    
+    Q_PROPERTY(QString metaLensDistance READ metaLensDistance NOTIFY metaLensDistanceChanged FINAL)
+    
+    Q_PROPERTY(QString metaLensFilter READ metaLensFilter NOTIFY metaLensFilterChanged FINAL)
+    
+    Q_PROPERTY(QString metaSlateTarget READ metaSlateTarget NOTIFY metaSlateTargetChanged FINAL)
+    
     QML_ELEMENT
     QML_SINGLETON
 
@@ -79,6 +103,30 @@ public:
     int shutterSpeed() const;
     
     bool timecodeDisplay() const;
+    
+    qint8 metaTakeNumber() const { return m_meta_take_number; }
+    
+    QString metaScene() const { return m_meta_scene; }
+    
+    QString metaCameraID() const { return m_meta_camera_id; }
+    
+    QString metaCameraOperator() const { return m_meta_camera_operator; }
+    
+    QString metaDirector() const { return m_meta_director; }
+    
+    QString metaProjectName() const { return m_meta_project_name; }
+    
+    QString metaLensType() const { return m_meta_lens_type; }
+    
+    QString metaLensIris() const { return m_meta_lens_iris; }
+    
+    QString metaLensFocal() const { return m_meta_lens_focal; }
+    
+    QString metaLensDistance() const { return m_meta_lens_distance; }
+    
+    QString metaLensFilter() const { return m_meta_lens_filter; }
+    
+    QString metaSlateTarget() const { return m_meta_slate_target; }
     
 public slots:
     void connectDevice(QBluetoothDeviceInfo *device);
@@ -166,6 +214,32 @@ Q_SIGNALS:
     void shutterSpeedChanged();
     
     void timecodeDisplayChanged();
+    
+    void metaTakeNumberChanged();
+    
+    void metaSceneChanged();
+    
+    void metaCameraIDChanged();
+    
+    void metaCameraOperatorChanged();
+    
+    void metaDirectorChanged();
+    
+    void metaProjectNameChanged();
+    
+    void metaLensTypeChanged();
+    
+    void metaLensIrisChanged();
+    
+    void metaLensFocalChanged();
+    
+    void metaLensDistanceChanged();
+    
+    void metaLensFilterChanged();
+    
+    void metaSlateModeChanged();
+    
+    void metaSlateTargetChanged();
     
 protected:
     void handleLensData(const QByteArray &data);

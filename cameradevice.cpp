@@ -639,42 +639,54 @@ void CameraDevice::handleMetaData(const QByteArray &data)
         break;
     case 3: // Take
         m_meta_take_number=data.at(8);
+        emit metaTakeNumberChanged();
         m_meta_take_tags=data.at(9);
         break;
     case 4:
         break;
     case 5: // ID
         m_meta_camera_id=data.mid(8);
+        emit metaCameraIDChanged();
         break;
     case 6: // Operator
         m_meta_camera_operator=data.mid(8);
+        emit metaCameraOperatorChanged();
         break;
     case 7: // Director
         m_meta_director=data.mid(8);
+        emit metaDirectorChanged();
         break;
     case 8: // Name
         m_meta_project_name=data.mid(8);
+        emit metaProjectNameChanged();
         break;
     case 9: // Lens type
         m_meta_lens_type=data.mid(8);
+        emit metaLensTypeChanged();
         break;
     case 10: // Iris
         m_meta_lens_iris=data.mid(8);
+        emit metaLensIrisChanged();
         break;
     case 11: // Focal length
         m_meta_lens_focal=data.mid(8);
+        emit metaLensFocalChanged();
         break;
     case 12: // Distance
         m_meta_lens_distance=data.mid(8);
+        emit metaLensDistanceChanged();
         break;
     case 13: // Filter
         m_meta_lens_filter=data.mid(8);
+        emit metaLensFilterChanged();
         break;
     case 14: // Slate mode
         m_meta_slate_mode=data.at(8);
+        emit metaSlateModeChanged();
         break;
     case 15: // Slate target
         m_meta_slate_target=data.mid(8);
+        emit metaSlateTargetChanged();
         break;
     }    
 }
