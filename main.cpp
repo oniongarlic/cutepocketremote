@@ -30,7 +30,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<CameraDiscovery>("org.tal", 1,0, "CameraDiscovery");
     qRegisterMetaType<QBluetoothDeviceInfo *>("BluetoothDeviceInfo");
 
-    QQuickStyle::setStyle("Universal");
+    //QQuickStyle::setStyle("Universal");
+    //QQuickStyle::setStyle("Material");
 
     QQmlApplicationEngine engine;
 

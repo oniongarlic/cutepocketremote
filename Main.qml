@@ -14,9 +14,11 @@ ApplicationWindow {
     minimumHeight: 480
     minimumWidth: 800
     visible: true
-    color: "grey"
+    color: "#eaeaf6"
     title: qsTr("CutePocketRemote")
-    
+
+    palette.disabled.buttonText: "grey"
+
     property bool smallInterface: height>500 ? false : true
     property int smallFontSize: smallInterface ? 16 : 24
     
@@ -223,9 +225,11 @@ ApplicationWindow {
     }
     
     header: ToolBar {
+        visible: smallInterface
         RowLayout {
             ToolButton {
-                text: "Find"
+                text: "Connect"
+                icon.name: "edit-find"
                 enabled: !cd.connected
                 onClicked: disocvery.startDeviceDiscovery()
             }
