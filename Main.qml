@@ -215,6 +215,30 @@ ApplicationWindow {
                 checked: false
             }
         }
+        Menu {
+            title: "Assists"
+            MenuItem {
+                id: menuZebraEnabled
+                text: "Zebra"
+                enabled: false
+                checkable: true
+                checked: false
+            }
+            MenuItem {
+                id: menuPeakingEnabled
+                text: "Peaking"
+                enabled: false
+                checkable: true
+                checked: false
+            }
+            MenuItem {
+                id: menuFalseColorEnabled
+                text: "False color"
+                enabled: false
+                checkable: true
+                checked: false
+            }
+        }
     }
     
     ButtonGroup {
