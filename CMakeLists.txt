@@ -16,11 +16,10 @@ qt_add_qml_module(appCutePocketRemote
     URI CutePocketRemote
     VERSION 1.0
     QML_FILES Main.qml
-    SOURCES cameradevice.cpp
-    SOURCES cameradevice.h
+    SOURCES cameradevice.h cameradevice.cpp
     SOURCES cameratypes.h
-    QML_FILES TimeCodeText.qml
     SOURCES cameradiscovery.h cameradiscovery.cpp
+    QML_FILES TimeCodeText.qml
     QML_FILES RelativeFocus.qml
     QML_FILES AbsoluteFocus.qml
     QML_FILES Zoom.qml
