@@ -1128,6 +1128,19 @@ bool CameraDevice::playback(bool next) {
     return writeCameraCommand(cmd);
 }
 
+bool CameraDevice::setColorbar(int sec) {
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff;
+    cmd[1]=0x05;
+    cmd[4]=0x04;
+    cmd[5]=0x04;
+    cmd[6]=0x01;
+    cmd[6]=0x02;
+    cmd[8]=qBound(0, sec, 30);
+
+    return writeCameraCommand(cmd);
+}
+
 /*
  * Time display (?) "ff:05:00:00:04:07:01:02:01"
  * Time display (?) "ff:05:00:00:04:07:01:02:00"

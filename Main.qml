@@ -14,9 +14,11 @@ ApplicationWindow {
     minimumHeight: 480
     minimumWidth: 800
     visible: true
-    color: "grey"
+    color: "#eaeaf6"
     title: qsTr("CutePocketRemote")
-    
+
+    palette.disabled.buttonText: "grey"
+
     property bool smallInterface: height>500 ? false : true
     property int smallFontSize: smallInterface ? 16 : 24
     
@@ -214,6 +216,30 @@ ApplicationWindow {
                 checked: false
             }
         }
+        Menu {
+            title: "Assists"
+            MenuItem {
+                id: menuZebraEnabled
+                text: "Zebra"
+                enabled: false
+                checkable: true
+                checked: false
+            }
+            MenuItem {
+                id: menuPeakingEnabled
+                text: "Peaking"
+                enabled: false
+                checkable: true
+                checked: false
+            }
+            MenuItem {
+                id: menuFalseColorEnabled
+                text: "False color"
+                enabled: false
+                checkable: true
+                checked: false
+            }
+        }
     }
     
     ButtonGroup {
@@ -224,9 +250,11 @@ ApplicationWindow {
     }
     
     header: ToolBar {
+        visible: smallInterface
         RowLayout {
             ToolButton {
-                text: "Find"
+                text: "Connect"
+                icon.name: "edit-find"
                 enabled: !cd.connected
                 onClicked: disocvery.startDeviceDiscovery()
             }

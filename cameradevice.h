@@ -127,7 +127,7 @@ public:
     QString metaLensFilter() const { return m_meta_lens_filter; }
     
     QString metaSlateTarget() const { return m_meta_slate_target; }
-    
+        
 public slots:
     void connectDevice(QBluetoothDeviceInfo *device);
     void disconnectFromDevice();
@@ -163,6 +163,8 @@ public slots:
     bool colorGamma(double r, double g, double b, double l);
     bool colorGain(double r, double g, double b, double l);
     bool colorOffset(double r, double g, double b, double l);
+
+    bool setColorbar(int sec);
     bool setDisplay(bool tc);
     
 private slots:
