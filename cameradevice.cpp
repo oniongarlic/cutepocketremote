@@ -452,7 +452,7 @@ void CameraDevice::handleAudioData(const QByteArray &data)
  */
 void CameraDevice::handleOutputData(const QByteArray &data)
 {
-    auto c=data.at(5);
+    quint8 c=data.at(5);
     switch (c) {
     default:
         qDebug() << "Unknown output data" << c << data.toHex(':');
@@ -618,8 +618,13 @@ void CameraDevice::handleStatusData(const QByteArray &data)
     }
         break;
     case 1: // USB-C attach + size ?
+        qDebug() << "statusUSB" << data.toHex(':');
         break;
     case 2: // Time left?
+        qDebug() << "statusTimeLeft" << data.toHex(':');
+        break;
+    case 7: // Assists ? (focus color, level, type)
+        qDebug() << "statusAssists" << data.toHex(':');
         break;
     default:
         qDebug() << "handleStatusData" << data.toHex(':');
