@@ -50,7 +50,7 @@ ApplicationWindow {
         width: parent.width/2
         interactive: false
         modal: true
-        closePolicy: Popup.NoAutoClose
+        closePolicy: disocvery.discovering ? Popup.NoAutoClose : (Popup.CloseOnEscape | Popup.CloseOnPressOutside)
         
         ColumnLayout {
             anchors.fill: parent
@@ -78,6 +78,7 @@ ApplicationWindow {
                 }
             }
             RowLayout {
+                Layout.fillWidth: true
                 Button {
                     enabled: !disocvery.discovering
                     text: "Refresh"
