@@ -356,7 +356,8 @@ void CameraDevice::handleLensData(const QByteArray &data)
  */
 void CameraDevice::handleVideoData(const QByteArray &data)
 {
-    switch (data.at(5)) {
+    quint8 c=data.at(5);
+    switch (c) {
     case 0: // Video mode
         qDebug() << "Mode" << data.toHex(':');
         break;
@@ -414,7 +415,7 @@ void CameraDevice::handleVideoData(const QByteArray &data)
         qDebug() << "ND" << data.toHex(':');
         break;    
     default:
-        qDebug() << "Unknown video data" << data.toHex(':') << data.toStdString();
+        qDebug() << "Unknown video data" << c << data.toHex(':');
     }
 }
 
@@ -451,7 +452,11 @@ void CameraDevice::handleAudioData(const QByteArray &data)
  */
 void CameraDevice::handleOutputData(const QByteArray &data)
 {
-    qDebug() << "Unknown output data" << data.toHex(':') << data.toStdString();
+    auto c=data.at(5);
+    switch (c) {
+    default:
+        qDebug() << "Unknown output data" << c << data.toHex(':');
+    }
 }
 
 /**
@@ -563,7 +568,8 @@ void CameraDevice::handleReferenceData(const QByteArray &data)
  */
 void CameraDevice::handleConfigData(const QByteArray &data)
 {
-    qDebug() << "handleConfigData" << data.toHex(':');
+    quint8 c=data.at(5);
+    qDebug() << "handleConfigData" << c << data.toHex(':');
 }
 
 /**
@@ -628,11 +634,14 @@ void CameraDevice::handleStatusData(const QByteArray &data)
 void CameraDevice::handleMetaData(const QByteArray &data)
 {
     QString str;
-    qDebug() << "handleMetaData" << data.toHex(':');
-    switch (data.at(5)) {
+    
+    quint8 c=data.at(5);
+    switch (c) {
     case 0: // Reel
+        qDebug() << "handleMetaData Reel" << data.toHex(':');
         break;
     case 1: // Scene tags
+        qDebug() << "handleMetaData Scene tag" << data.toHex(':');
         break;
     case 2: // Scene
         m_meta_scene=data.mid(8);
@@ -643,6 +652,7 @@ void CameraDevice::handleMetaData(const QByteArray &data)
         m_meta_take_tags=data.at(9);
         break;
     case 4:
+        qDebug() << "handleMetaData (4)?" << data.toHex(':');
         break;
     case 5: // ID
         m_meta_camera_id=data.mid(8);
@@ -688,6 +698,8 @@ void CameraDevice::handleMetaData(const QByteArray &data)
         m_meta_slate_target=data.mid(8);
         emit metaSlateTargetChanged();
         break;
+    default:
+        qDebug() << "handleMetaData unknown" << c << data.toHex(':');
     }    
 }
 
@@ -705,7 +717,8 @@ void CameraDevice::characteristicChanged(QLowEnergyCharacteristic characteristic
         m_timecode.setHMS(bcdtoint(h),bcdtoint(m), bcdtoint(s) ,bcdtoint(f));
         emit timecodeChanged();
     } else if (characteristic.uuid()==IncomingCameraControl && (quint8)value[0]==255) {
-        switch (value.at(4)) {
+        quint8 c=value.at(4);
+        switch (c) {
         case 0: // Lens
             handleLensData(value);
             break;
@@ -745,6 +758,8 @@ void CameraDevice::characteristicChanged(QLowEnergyCharacteristic characteristic
         case 12: // Metadata
             handleMetaData(value);
             break;
+        default:
+            qDebug() << "Unknown category" << c << value.at(5) << value.toHex(':');
         }
     } else if (characteristic.uuid()==CameraStatus) {
         m_status=value.at(0);
