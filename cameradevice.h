@@ -302,6 +302,11 @@ private:
     quint8 m_media_speed=0;
     quint8 m_media_slot_1;
     quint8 m_media_slot_2;
+    
+    qint8 m_guide_style;
+    qint8 m_guide_opacity;
+    qint8 m_safe_area;
+    qint8 m_grid_style;
 
     qint16 m_meta_reel;
     qint8 m_meta_tags;

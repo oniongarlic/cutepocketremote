@@ -453,7 +453,18 @@ void CameraDevice::handleAudioData(const QByteArray &data)
 void CameraDevice::handleOutputData(const QByteArray &data)
 {
     quint8 c=data.at(5);
+    
     switch (c) {
+    case 3:
+        qDebug() << "Overlays" << data.toHex(':');
+        m_guide_style=data.at(8);
+        m_guide_opacity=data.at(9);
+        m_safe_area=data.at(10);
+        m_grid_style=data.at(11);
+        
+        qDebug() << m_guide_style << m_guide_opacity << m_safe_area << m_grid_style;
+            
+        break;
     default:
         qDebug() << "Unknown output data" << c << data.toHex(':');
     }
