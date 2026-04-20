@@ -6,10 +6,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Bluetooth Core Gui Quick QuickControls2)
 
+set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/icon.rc")
+
 qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(appCutePocketRemote
     main.cpp
+    ${app_icon_resource_windows}
 )
 
 qt_add_qml_module(appCutePocketRemote
