@@ -533,30 +533,27 @@ ApplicationWindow {
                         cd.setApertureNormalized(value)
                     }
                 }
-                Button {
-                    Layout.fillWidth: false
+                ApertureButton {
                     text: "f/4.0"
                     onClicked: cd.setAperture('4.0')
                 }
-                Button {
-                    Layout.fillWidth: false
+                ApertureButton {
                     text: "f/5.6"
                     onClicked: cd.setAperture('5.6')
                 }
-                Button {
-                    Layout.fillWidth: false
+                ApertureButton {
                     text: "f/6.2"
                     onClicked: cd.setAperture('6.2')
                 }
-                Button {
-                    Layout.fillWidth: false
+                ApertureButton {
                     text: "f/8.0"
                     onClicked: cd.setAperture('8.0')
                 }
                 Button {
                     id: autoApertureButton
                     Layout.fillWidth: false
-                    text: "Auto\nAperture"
+                    Layout.fillHeight: true
+                    text: "Auto"
                     onClicked: cd.autoAperture()
                 }
             }
@@ -594,33 +591,21 @@ ApplicationWindow {
                         cd.setGain(value)
                     }
                 }
-                Button {
-                    Layout.fillWidth: true
-                    text: "400"
-                    onClicked: {
-                        cd.setISO(400)
-                    }
+                ISOButton {
+                    iso: 400
+                    onClicked: cd.setISO(iso)
                 }
-                Button {
-                    Layout.fillWidth: true
-                    text: "600"
-                    onClicked: {
-                        cd.setISO(600)
-                    }
+                ISOButton {
+                    iso: 600
+                    onClicked: cd.setISO(iso)
                 }
-                Button {
-                    Layout.fillWidth: true
-                    text: "800"
-                    onClicked: {
-                        cd.setISO(800)
-                    }
+                ISOButton {
+                    iso: 800
+                    onClicked: cd.setISO(iso)
                 }
-                Button {
-                    Layout.fillWidth: true
-                    text: "3200"
-                    onClicked: {
-                        cd.setISO(3200)
-                    }
+                ISOButton {
+                    iso: 3200
+                    onClicked: cd.setISO(iso)
                 }
             }
             
@@ -634,6 +619,7 @@ ApplicationWindow {
                 ColumnLayout {
                     ComboBox {
                         id: comboWB
+                        Layout.fillWidth: true
                         model: [3200,3600,4000,4600,5600,6500,7500]
                         displayText: currentText+"K"
                         onActivated: {
@@ -674,65 +660,62 @@ ApplicationWindow {
                     }
                     
                 }
-                ColumnLayout {
-                    Button {
-                        Layout.fillWidth: true
+                GridLayout {
+                    id: wbButtons
+                    rows: 2
+                    columns: 3
+                    WhiteBalanceButton {
+                        wb: 5600
+                        tint: 10
+                        text: "Sun"
+                    }
+                    WhiteBalanceButton {
+                        text: "Light 1"
+                        wb: 3200
+                    }
+                    WhiteBalanceButton {
+                        text: "Studio"
+                        wb: 3600
+                    }
+                    WhiteBalanceButton {
+                        text: "Light 2"
+                        wb: 4000
+                        tint: 15
+                    }
+                    WhiteBalanceButton {
+                        wb: 4500
+                        tint: 15
+                        text: "Shade"
+                    }
+                    WhiteBalanceButton {
+                        wb: 6500
+                        tint: 10
+                        text: "Cloudy"
+                    }
+                    WhiteBalanceButton {
+                        wb: 4600
+                        text: "4600K"
+                    }
+                    WhiteBalanceButton {
                         text: "Auto"
                         onClicked: cd.autoWhitebalance();
                     }
-                    Button {
-                        Layout.fillWidth: true
+                    WhiteBalanceButton {
                         text: "Restore"
                         onClicked: cd.restoreAutoWhiteBalance()
                     }
                 }
-                GridLayout {
-                    rows: 2
-                    columns: 3
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Sun"
-                        onClicked: {
-                            cd.whiteBalance(5600, 10)
-                        }
-                    }
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Light 1"
-                        onClicked: {
-                            cd.whiteBalance(3200, 0)
-                        }
-                    }
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Light 2"
-                        onClicked: {
-                            cd.whiteBalance(4000, 15)
-                        }
-                    }
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Shade"
-                        onClicked: {
-                            cd.whiteBalance(4500, 15)
-                        }
-                    }
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Cloudy"
-                        onClicked: {
-                            cd.whiteBalance(6500, 10)
-                        }
-                    }
-                    Button {
-                        Layout.fillWidth: true
-                        text: "4600K"
-                        onClicked: {
-                            cd.whiteBalance(4600, 0)
-                        }
-                    }
-                }
             }
+        }
+    }
+
+    ButtonGroup {
+        id: wbg
+        buttons: wbButtons.children
+        onClicked: {
+            // ignore the auto/restore buttons
+            if (button.wb>0)
+                cd.whiteBalance(button.wb, button.tint)
         }
     }
     

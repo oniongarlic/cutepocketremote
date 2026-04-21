@@ -8,7 +8,7 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Bluetooth Core Gui Quick QuickControls2
 
 set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/icon.rc")
 
-qt_standard_project_setup(REQUIRES 6.5)
+qt_standard_project_setup(REQUIRES 6.6)
 
 qt_add_executable(appCutePocketRemote
     main.cpp
@@ -26,6 +26,9 @@ qt_add_qml_module(appCutePocketRemote
     QML_FILES RelativeFocus.qml
     QML_FILES AbsoluteFocus.qml
     QML_FILES Zoom.qml
+    QML_FILES WhiteBalanceButton.qml
+    QML_FILES ApertureButton.qml
+    QML_FILES ISOButton.qml
 )
 
 target_link_libraries(appCutePocketRemote PUBLIC
