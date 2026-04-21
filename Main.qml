@@ -33,7 +33,7 @@ ApplicationWindow {
         onDiscoveryStop: (devices) => {
                              if (devices==0) {
                                  cameraStatus.text="No cameras found!"
-                                 cameraDrawer.close()
+                                 //cameraDrawer.close()
                                  return;
                              }
                              cameraStatus.text="Found "+devices
@@ -57,7 +57,7 @@ ApplicationWindow {
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 8
-            Text {
+            Label {
                 id: deviceCount
                 text: "Cameras: "+disocvery.count
             }
@@ -96,11 +96,16 @@ ApplicationWindow {
             }
         }
         
-        ProgressBar {
+        BusyIndicator {
             id: discoveringProgress
             anchors.centerIn: parent
-            indeterminate: visible
             visible: disocvery.discovering
+        }
+
+        Label {
+            anchors.centerIn: parent
+            visible: disocvery.count==0 && !disocvery.discovering
+            text: "No cameras found"
         }
     }
     
