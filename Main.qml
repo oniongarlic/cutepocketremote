@@ -481,6 +481,8 @@ ApplicationWindow {
                     }
                 }
                 ColumnLayout {
+                    id: focusContainer
+                    Layout.alignment: Qt.AlignTop
                     RelativeFocus {
                         cd: cd
                         visible: relativeFocus
@@ -495,16 +497,22 @@ ApplicationWindow {
                     }
                     Label {
                         text: cd.metaLensDistance
+                        font.weight: Font.Bold
                     }
                     Label {
                         text: cd.metaLensFocal
+                        font.weight: Font.Bold
                     }
                 }
                 ColumnLayout {
+                    id: zoomContainer
+                    Layout.alignment: Qt.AlignTop
+                    Layout.maximumHeight: focusContainer.height
                     Zoom {
                         cd: cd
                         visible: menuZoomEnabled.checked
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         Layout.alignment: Qt.AlignTop
                     }
                 }

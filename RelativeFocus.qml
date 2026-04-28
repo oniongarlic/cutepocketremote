@@ -61,6 +61,7 @@ RowLayout {
         Layout.fillWidth: true
         Layout.minimumWidth: 180
         Layout.preferredWidth: 200
+        Layout.maximumHeight: 300
         from: -200
         to: 200
         stepSize: 10
