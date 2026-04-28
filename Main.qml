@@ -167,6 +167,11 @@ ApplicationWindow {
         shortcut: StandardKey.Quit
         onTriggered: Qt.quit()
     }
+
+    Shortcut {
+        sequences: [StandardKey.FullScreen]
+        onActivated: menuFullScreen.click()
+    }
     
     menuBar: MenuBar {
         id: mainMenu
@@ -179,6 +184,7 @@ ApplicationWindow {
                 onClicked: slateDrawer.open()
             }
             MenuItem {
+                id: menuFullScreen
                 text: "Full screen"
                 checkable: true
                 checked: visibility==Window.FullScreen ? true : false
