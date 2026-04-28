@@ -179,6 +179,12 @@ ApplicationWindow {
                 onClicked: slateDrawer.open()
             }
             MenuItem {
+                text: "Full screen"
+                checkable: true
+                checked: visibility==Window.FullScreen ? true : false
+                onCheckedChanged: visibility=!checked ? Window.Windowed : Window.FullScreen
+            }
+            MenuItem {
                 text: "Quit"
                 onClicked: Qt.quit()
             }
