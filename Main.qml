@@ -172,6 +172,17 @@ ApplicationWindow {
         sequences: [StandardKey.FullScreen]
         onActivated: menuFullScreen.click()
     }
+
+    Dialog {
+        id: quitDialog
+        title: "Are you sure ?"
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        modal: true
+        onAccepted: {
+            cd.disconnectFromDevice()
+            Qt.quit()
+        }
+    }
     
     menuBar: MenuBar {
         id: mainMenu
@@ -184,15 +195,25 @@ ApplicationWindow {
                 onClicked: slateDrawer.open()
             }
             MenuItem {
+                text: "&Play mode"
+                enabled: cd.connectionReady && !cd.recording && !cd.playing
+                onClicked: cd.play(true);
+            }
+            MenuItem {
                 id: menuFullScreen
-                text: "Full screen"
+                text: "&Full screen"
                 checkable: true
                 checked: visibility==Window.FullScreen ? true : false
                 onCheckedChanged: visibility=!checked ? Window.Windowed : Window.FullScreen
             }
             MenuItem {
                 text: "&Quit"
-                onClicked: Qt.quit()
+                onClicked: {
+                    if (!cd.connected)
+                        Qt.quit()
+                    else
+                        quitDialog.open()
+                }
             }
         }
         Menu {
