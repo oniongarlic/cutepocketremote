@@ -177,9 +177,9 @@ ApplicationWindow {
         id: mainMenu
         visible: !smallInterface
         Menu {
-            title: "File"
+            title: "&File"
             MenuItem {
-                text: "Slate"
+                text: "&Slate"
                 enabled: cd.connectionReady
                 onClicked: slateDrawer.open()
             }
@@ -191,14 +191,14 @@ ApplicationWindow {
                 onCheckedChanged: visibility=!checked ? Window.Windowed : Window.FullScreen
             }
             MenuItem {
-                text: "Quit"
+                text: "&Quit"
                 onClicked: Qt.quit()
             }
         }
         Menu {
-            title: "Device"
+            title: "&Device"
             MenuItem {
-                text: "Find"
+                text: "&Find"
                 enabled: !cd.connected
                 onClicked: disocvery.startDeviceDiscovery()
             }
@@ -209,17 +209,17 @@ ApplicationWindow {
             }
         }
         Menu {
-            title: "Lens control"
+            title: "&Lens control"
             MenuItem {
                 id: menuFocusRelative
-                text: "Relative Focus"
+                text: "&Relative Focus"
                 checkable: true
                 checked: true
                 ButtonGroup.group: focusGroup
             }
             MenuItem {
                 id: menuFocusAbsolute
-                text: "Absolute Focus"
+                text: "&Absolute Focus"
                 checkable: true
                 ButtonGroup.group: focusGroup
             }
@@ -228,30 +228,30 @@ ApplicationWindow {
             }
             MenuItem {
                 id: menuZoomEnabled
-                text: "Show zoom"
+                text: "Show &zoom"
                 checkable: true
                 checked: false
             }
         }
         Menu {
-            title: "Assists"
+            title: "&Assists"
             MenuItem {
                 id: menuZebraEnabled
-                text: "Zebra"
+                text: "&Zebra"
                 enabled: false
                 checkable: true
                 checked: false
             }
             MenuItem {
                 id: menuPeakingEnabled
-                text: "Peaking"
+                text: "&Peaking"
                 enabled: false
                 checkable: true
                 checked: false
             }
             MenuItem {
                 id: menuFalseColorEnabled
-                text: "False color"
+                text: "&False color"
                 enabled: false
                 checkable: true
                 checked: false
