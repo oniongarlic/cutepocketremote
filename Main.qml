@@ -15,7 +15,7 @@ ApplicationWindow {
     minimumWidth: 800
     visible: true
     color: "#eaeaf6"
-    title: qsTr("CutePocketRemote")
+    title: qsTr("CutePocketRemote") + " " + Qt.application.version
 
     palette.disabled.buttonText: "grey"
 
