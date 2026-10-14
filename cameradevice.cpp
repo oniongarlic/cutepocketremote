@@ -207,10 +207,16 @@ bool CameraDevice::setCameraName(const QString name)
 
 void CameraDevice::deviceDisconnected()
 {
-    qWarning() << "Disconnect from device";
+    qDebug() << "Disconnect from device";
+
     if (m_cameraOutgoing) {
         delete m_cameraOutgoing;
         m_cameraOutgoing=nullptr;
+    }
+
+    if (m_cameraName) {
+        delete m_cameraName;
+        m_cameraName=nullptr;
     }
 
     m_name="";
