@@ -10,12 +10,12 @@ set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/icon.rc")
 
 qt_standard_project_setup(REQUIRES 6.6)
 
-qt_add_executable(appCutePocketRemote
+qt_add_executable(CutePocketRemote
     main.cpp
     ${app_icon_resource_windows}
 )
 
-qt_add_qml_module(appCutePocketRemote
+qt_add_qml_module(CutePocketRemote
     URI CutePocketRemote
     VERSION 1.0
     QML_FILES Main.qml
@@ -31,7 +31,7 @@ qt_add_qml_module(appCutePocketRemote
     QML_FILES ISOButton.qml
 )
 
-target_link_libraries(appCutePocketRemote PUBLIC
+target_link_libraries(CutePocketRemote PUBLIC
     Qt::Bluetooth
     Qt::Core
     Qt::Gui
@@ -42,8 +42,8 @@ target_link_libraries(appCutePocketRemote PUBLIC
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
-set_target_properties(appCutePocketRemote PROPERTIES
-#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.appCutePocketRemote
+set_target_properties(CutePocketRemote PROPERTIES
+#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.CutePocketRemote
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
@@ -51,16 +51,30 @@ set_target_properties(appCutePocketRemote PROPERTIES
 )
 
 if(APPLE)
-    set_target_properties(appCutePocketRemote PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
+    set_target_properties(CutePocketRemote PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
 endif()
 
-target_link_libraries(appCutePocketRemote
+target_link_libraries(CutePocketRemote
     PRIVATE Qt6::Quick
 )
 
+if(WIN32)
+    set(CMAKE_INSTALL_PREFIX "C:/Export/Qt/CutePocketRemote")
+endif()
+
 include(GNUInstallDirs)
-install(TARGETS appCutePocketRemote
+install(TARGETS CutePocketRemote
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+qt_generate_deploy_qml_app_script(
+    TARGET CutePocketRemote
+    OUTPUT_SCRIPT deploy_qml_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+    DEPLOY_USER_QML_MODULES_ON_UNSUPPORTED_PLATFORM
+    NO_TRANSLATIONS
+)
+
+install(SCRIPT ${deploy_qml_script})
