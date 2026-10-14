@@ -79,6 +79,9 @@ ApplicationWindow {
                     }
                 }
             }
+            Label {
+                text: "Make sure you have paired the device before connecting."
+            }
             RowLayout {
                 Layout.fillWidth: true
                 Button {
