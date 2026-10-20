@@ -47,11 +47,30 @@ CameraDevice::CameraDevice()
 }
 
 CameraDevice::~CameraDevice()
-{    
+{
+    cleanup();
+}
+
+void CameraDevice::cleanup()
+{
     qDeleteAll(m_services);
     m_services.clear();
     if (m_controller) {
         m_controller->disconnectFromDevice();
+        delete m_controller;
+        m_controller = nullptr;
+    }
+    if (m_currentDevice) {
+        delete m_currentDevice;
+        m_currentDevice=nullptr;
+    }
+    if (m_cameraOutgoing) {
+        delete m_cameraOutgoing;
+        m_cameraOutgoing=nullptr;
+    }
+    if (m_cameraName) {
+        delete m_cameraName;
+        m_cameraName=nullptr;
     }
 }
 
@@ -148,16 +167,17 @@ void CameraDevice::connectToService(const QString &uuid)
         }
     }
 
-    if (!service)
+    if (!service) {
+        qWarning() << "connectToService" << uuid << " not found ?";
         return;
+    }
+    qDebug() << "connectToService" << service->state();
 
     if (service->state() == QLowEnergyService::RemoteService) {
         connect(service, &QLowEnergyService::stateChanged, this, &CameraDevice::serviceDetailsDiscovered);
         service->discoverDetails(QLowEnergyService::FullDiscovery); //xxx QLowEnergyService::FullDiscovery / SkipValueDiscovery        
     } else if (service->state() == QLowEnergyService::RemoteServiceDiscovered) {
         serviceDetailsDiscovered(QLowEnergyService::RemoteServiceDiscovered);
-    } else {
-        qWarning() << "connectToService" << service->state();
     }
 }
 
@@ -209,15 +229,7 @@ void CameraDevice::deviceDisconnected()
 {
     qDebug() << "Disconnect from device";
 
-    if (m_cameraOutgoing) {
-        delete m_cameraOutgoing;
-        m_cameraOutgoing=nullptr;
-    }
-
-    if (m_cameraName) {
-        delete m_cameraName;
-        m_cameraName=nullptr;
-    }
+    cleanup();
 
     m_name="";
     emit nameChanged();

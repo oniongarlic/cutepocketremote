@@ -262,6 +262,8 @@ private:
     bool writeCameraCommand(const QByteArray &cmd);
     bool writeCameraName(const QString &name);
 
+    void cleanup();
+
     QBluetoothDeviceInfo *m_currentDevice=nullptr;
 
     QHash<QString, QBluetoothDeviceInfo *> m_cameras;
