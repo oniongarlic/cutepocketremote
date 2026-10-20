@@ -25,15 +25,15 @@ public slots:
     void startDeviceDiscovery();
     QVariantList getDevices();
     QString getDefaultDevice();
-    QBluetoothDeviceInfo *getBluetoothDevice(QString address);
+    QBluetoothDeviceInfo *getBluetoothDevice(const QString &address);
     
 signals:
     void discoveryStart();
     void discoveryStop(qsizetype devices);
     void devicesUpdated();
     void discoveringChanged();
-    void controllerErrorChanged();
-    
+    void discoveryError();
+    void noDeviceError();
     void countChanged();
     
 protected:

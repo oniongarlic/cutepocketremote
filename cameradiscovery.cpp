@@ -60,10 +60,21 @@ bool CameraDiscovery::discovering()
 
 void CameraDiscovery::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error)
 {
-    emit controllerErrorChanged();
+    qDebug() << "deviceScanError" << error;
     
+    switch (error) {
+    case QBluetoothDeviceDiscoveryAgent::NoError:
+
+        break;
+    case QBluetoothDeviceDiscoveryAgent::PoweredOffError:
+        emit noDeviceError();
+        break;
+    default:
+        emit discoveryError();
+        break;
+    }
+
     m_discovering = false;
-    
     emit discoveringChanged();
 }
 
@@ -140,7 +151,7 @@ QString CameraDiscovery::getDefaultDevice()
     return "";
 }
 
-QBluetoothDeviceInfo *CameraDiscovery::getBluetoothDevice(QString address)
+QBluetoothDeviceInfo *CameraDiscovery::getBluetoothDevice(const QString &address)
 {
     return m_devices.value(address);
 }
