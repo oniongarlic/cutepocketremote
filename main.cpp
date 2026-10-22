@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("org.tal.cutepocketcamera");
     QCoreApplication::setOrganizationName("tal.org");
     QCoreApplication::setApplicationName("CutePocketCamera");
-    QCoreApplication::setApplicationVersion("0.4.0");
+    QCoreApplication::setApplicationVersion("0.4.1");
     
 #ifdef DEBUG
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
