@@ -639,11 +639,14 @@ void CameraDevice::handleStatusData(const QByteArray &data)
     switch (data.at(5)) {
     case 0: // ?
     {
-        uint8_t ticker=data.at(8);
-        uint8_t charge=data.at(9);
+        uint8_t ticker=data.at(8); // charge/discharge rate ?
+        uint16_t voltage=CutePocket::uint16at(data, 9);
         uint8_t power=data.at(12); // 1b=ac/psu, 0b=volt/psu, 19=volt/battery, 09=no/psu
+
+        m_extpower=power & 2;
+        bool disp=power & 16;
         
-        qDebug() << "Status" << ticker << power << charge << data.toHex(':');
+        qDebug() << "Status" << data.toHex(':') << m_extpower << voltage << disp;
     }
         break;
     case 1: // USB-C attach + size ?

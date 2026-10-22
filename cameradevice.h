@@ -299,6 +299,8 @@ private:
     
     bool m_timecodeDisplay=false;
 
+    bool m_extpower=false;
+
     quint8 m_codec=0;
     quint8 m_codec_variant=0;
     quint8 m_media_speed=0;
