@@ -27,18 +27,32 @@ ApplicationWindow {
     CameraDiscovery {
         id: disocvery
         onDiscoveryStart: {
-            cameraStatus.text='Connecting...'
             cameraDrawer.open()
         }
         onDiscoveryStop: (devices) => {
                              if (devices==0) {
-                                 cameraStatus.text="No cameras found!"
-                                 //cameraDrawer.close()
                                  return;
                              }
-                             cameraStatus.text="Found "+devices
-                             var d=getDevices();
-                             deviceList.model=d;
+                             deviceList.model=getDevices();
+                         }
+
+        onDiscoveryError: {
+            cameraStatus.text="Scannig for cameras failed"
+        }
+        onNoDeviceError: {
+            cameraStatus.text="Bluetooth connection not available"
+        }
+
+        onStatusChanged: (discoveryStatus) => {
+                             console.debug("Status", discoveryStatus)
+                             switch (discoveryStatus) {
+                                 case CameraDiscovery.DiscoveryDisabled:
+                                 dStatus.text="Bluetooth connection not available"
+                                 break;
+                                 case CameraDiscovery.DiscoveryIdle:
+                                 dStatus.text=""
+                                 break;
+                             }
                          }
     }
     
@@ -58,8 +72,7 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.margins: 8
             Label {
-                id: deviceCount
-                text: "Cameras: "+disocvery.count
+                text: "Discovered cameras"
             }
             ListView {
                 id: deviceList
@@ -80,16 +93,33 @@ ApplicationWindow {
                 }
             }
             Label {
+                id: deviceCount
+                text: "Cameras: "+disocvery.count
+            }
+            Label {
+                id: dStatus
+                text: ""
+            }
+            Label {
                 text: "Make sure you have paired the device before connecting."
             }
             RowLayout {
                 Layout.fillWidth: true
+                uniformCellSizes: true
                 Button {
+                    Layout.fillWidth: true
                     enabled: !disocvery.discovering
                     text: "Refresh"
                     onClicked: disocvery.startDeviceDiscovery()
                 }
                 Button {
+                    Layout.fillWidth: true
+                    enabled: disocvery.discovering
+                    text: "Stop"
+                    onClicked: disocvery.stopDeviceDiscovery()
+                }
+                Button {
+                    Layout.fillWidth: true
                     enabled: !disocvery.discovering
                     text: "Close"
                     onClicked: {
@@ -209,6 +239,18 @@ ApplicationWindow {
                 checked: visibility==Window.FullScreen ? true : false
                 onCheckedChanged: visibility=!checked ? Window.Windowed : Window.FullScreen
             }
+
+            MenuItem {
+                id: menuToolbar
+                text: "Show toolbar"
+                checkable: true
+                checked: true
+            }
+
+            MenuSeparator {
+
+            }
+
             MenuItem {
                 text: "&Quit"
                 onClicked: {
@@ -289,9 +331,11 @@ ApplicationWindow {
                        
                    }
     }
+
+    property bool toolbarEnabled: menuToolbar.checked
     
     header: ToolBar {
-        visible: smallInterface
+        visible: smallInterface || toolbarEnabled
         RowLayout {
             ToolButton {
                 text: "Connect"

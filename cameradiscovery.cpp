@@ -26,9 +26,12 @@ void CameraDiscovery::clearDevices()
     
     qDeleteAll(m_devices);
     m_devices.clear();
-    
+
     emit countChanged();
     emit devicesUpdated();
+
+    m_status=DiscoveryIdle;
+    emit statusChanged(m_status);
 }
 
 void CameraDiscovery::startDeviceDiscovery()
@@ -40,10 +43,15 @@ void CameraDiscovery::startDeviceDiscovery()
     
     m_discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     
+    // check, as if bt is disabled it never goes active
     if (m_discoveryAgent->isActive()) {
         m_discovering = true;
         emit discoveringChanged();
+
+        m_status=DiscoveryActive;
+        emit statusChanged(m_status);
     }
+
     emit discoveryStart();
 }
 
@@ -51,6 +59,12 @@ void CameraDiscovery::stopDeviceDiscovery()
 {
     if (m_discoveryAgent->isActive())
         m_discoveryAgent->stop();
+
+    m_discovering = false;
+    emit discoveringChanged();
+
+    m_status=DiscoveryIdle;
+    emit statusChanged(m_status);
 }
 
 bool CameraDiscovery::discovering()
@@ -64,12 +78,16 @@ void CameraDiscovery::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error erro
     
     switch (error) {
     case QBluetoothDeviceDiscoveryAgent::NoError:
-
+         m_status=DiscoveryIdle;
+        emit statusChanged(m_status);
         break;
     case QBluetoothDeviceDiscoveryAgent::PoweredOffError:
+        m_status=DiscoveryDisabled;
+        emit statusChanged(m_status);
         emit noDeviceError();
         break;
     default:
+        m_status=DiscoveryError;
         emit discoveryError();
         break;
     }
@@ -141,6 +159,9 @@ void CameraDiscovery::deviceScanFinished()
     
     emit discoveringChanged();
     emit discoveryStop(m_cameras.count());
+
+    m_status=DiscoveryDone;
+    emit statusChanged(m_status);
 }
 
 QString CameraDiscovery::getDefaultDevice()
@@ -164,4 +185,9 @@ QVariantList CameraDiscovery::getDevices()
 int CameraDiscovery::count() const
 {
     return m_devices.size();
+}
+
+CameraDiscovery::DiscoveryStatus CameraDiscovery::status() const
+{
+    return m_status;
 }

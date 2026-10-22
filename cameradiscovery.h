@@ -12,25 +12,37 @@ class CameraDiscovery : public QObject
     Q_OBJECT
     Q_PROPERTY(bool discovering READ discovering NOTIFY discoveringChanged FINAL)
     Q_PROPERTY(int count READ count NOTIFY countChanged FINAL)
+    Q_PROPERTY(DiscoveryStatus status READ status NOTIFY statusChanged FINAL)
     QML_ELEMENT
     QML_SINGLETON
 public:
+    enum DiscoveryStatus {
+        DiscoveryIdle,
+        DiscoveryActive,
+        DiscoveryDone,
+        DiscoveryDisabled,
+        DiscoveryError,
+    };
+    Q_ENUM(DiscoveryStatus)
     explicit CameraDiscovery(QObject *parent = nullptr);
     
     ~CameraDiscovery();
     int count() const;
+
+    CameraDiscovery::DiscoveryStatus status() const;
     
-public slots:
-    void stopDeviceDiscovery();
-    void startDeviceDiscovery();
-    QVariantList getDevices();
-    QString getDefaultDevice();
-    QBluetoothDeviceInfo *getBluetoothDevice(const QString &address);
+    Q_INVOKABLE void startDeviceDiscovery();
+    Q_INVOKABLE void stopDeviceDiscovery();
+
+    Q_INVOKABLE QVariantList getDevices();
+    Q_INVOKABLE QString getDefaultDevice();
+    Q_INVOKABLE QBluetoothDeviceInfo *getBluetoothDevice(const QString &address);
     
 signals:
     void discoveryStart();
     void discoveryStop(qsizetype devices);
     void devicesUpdated();
+    void statusChanged(CameraDiscovery::DiscoveryStatus discoveryStatus);
     void discoveringChanged();
     void discoveryError();
     void noDeviceError();
@@ -49,6 +61,7 @@ private:
     QMap<QString, QBluetoothDeviceInfo *> m_devices;
     bool m_discovering=false;
     void clearDevices();
+    DiscoveryStatus m_status=DiscoveryIdle;
 };
 
 #endif // CAMERADISCOVERY_H
