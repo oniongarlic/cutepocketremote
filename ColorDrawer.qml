@@ -29,6 +29,8 @@ Drawer {
                 defaultValue: 0
                 text: "Lift"
                 onRgbChanged: {
+                    if (!cd.connected)
+                        return
                     cd.colorLift(r, g, b, level)
                 }
             }
@@ -39,6 +41,8 @@ Drawer {
                 defaultValue: 0
                 text: "Gamma"
                 onRgbChanged: {
+                    if (!cd.connected)
+                        return
                     cd.colorGamma(r, g, b, level)
                 }
             }
@@ -49,6 +53,8 @@ Drawer {
                 defaultValue: 1
                 text: "Gain"
                 onRgbChanged: {
+                    if (!cd.connected)
+                        return
                     cd.colorGain(r, g, b, level)
                 }
             }
