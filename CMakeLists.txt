@@ -1,21 +1,21 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(CutePocketRemote VERSION 0.1 LANGUAGES CXX)
+project(cpr VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Bluetooth Core Gui Quick QuickControls2)
+find_package(Qt6 6.6 REQUIRED COMPONENTS Bluetooth Core Gui Quick QuickControls2)
 
 set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/icon.rc")
 
 qt_standard_project_setup(REQUIRES 6.6)
 
-qt_add_executable(CutePocketRemote
+qt_add_executable(cpr
     main.cpp
     ${app_icon_resource_windows}
 )
 
-qt_add_qml_module(CutePocketRemote
+qt_add_qml_module(cpr
     URI CutePocketRemote
     VERSION 1.0
     QML_FILES Main.qml
@@ -29,9 +29,12 @@ qt_add_qml_module(CutePocketRemote
     QML_FILES WhiteBalanceButton.qml
     QML_FILES ApertureButton.qml
     QML_FILES ISOButton.qml
+    QML_FILES ColorDrawer.qml
+    QML_FILES ColorSlider.qml
+    QML_FILES ColorInterface.qml
 )
 
-target_link_libraries(CutePocketRemote PUBLIC
+target_link_libraries(cpr PUBLIC
     Qt::Bluetooth
     Qt::Core
     Qt::Gui
@@ -42,8 +45,8 @@ target_link_libraries(CutePocketRemote PUBLIC
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
-set_target_properties(CutePocketRemote PROPERTIES
-#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.CutePocketRemote
+set_target_properties(cpr PROPERTIES
+    MACOSX_BUNDLE_GUI_IDENTIFIER org.tal.CutePocketRemote
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
@@ -51,10 +54,10 @@ set_target_properties(CutePocketRemote PROPERTIES
 )
 
 if(APPLE)
-    set_target_properties(CutePocketRemote PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
+    set_target_properties(cpr PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
 endif()
 
-target_link_libraries(CutePocketRemote
+target_link_libraries(cpr
     PRIVATE Qt6::Quick
 )
 
@@ -63,14 +66,14 @@ if(WIN32)
 endif()
 
 include(GNUInstallDirs)
-install(TARGETS CutePocketRemote
+install(TARGETS cpr
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 qt_generate_deploy_qml_app_script(
-    TARGET CutePocketRemote
+    TARGET cpr
     OUTPUT_SCRIPT deploy_qml_script
     NO_UNSUPPORTED_PLATFORM_ERROR
     DEPLOY_USER_QML_MODULES_ON_UNSUPPORTED_PLATFORM

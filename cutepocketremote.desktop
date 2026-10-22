@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=CutePocketRemote
+GenericName=BM Camera remote
+Comment=Control BM cameras over bluetooth
+Exec=cpr
+Icon=cutepocketremote.png
+Terminal=false
+Type=Application
+Categories=Multimedia
+Keywords=Camera;Remote
