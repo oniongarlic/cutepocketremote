@@ -21,9 +21,9 @@ ApplicationWindow {
 
     property bool smallInterface: height>500 ? false : true
     property int smallFontSize: smallInterface ? 16 : 24
-    
+
     property bool relativeFocus: menuFocusRelative.checked
-    
+
     CameraDiscovery {
         id: disocvery
         onDiscoveryStart: {
@@ -41,11 +41,11 @@ ApplicationWindow {
                              deviceList.model=d;
                          }
     }
-    
+
     ListModel {
         id: deviceModel
     }
-    
+
     Drawer {
         id: cameraDrawer
         height: parent.height
@@ -53,7 +53,7 @@ ApplicationWindow {
         interactive: false
         modal: true
         closePolicy: disocvery.discovering ? Popup.NoAutoClose : (Popup.CloseOnEscape | Popup.CloseOnPressOutside)
-        
+
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 8
@@ -98,7 +98,7 @@ ApplicationWindow {
                 }
             }
         }
-        
+
         BusyIndicator {
             id: discoveringProgress
             anchors.centerIn: parent
@@ -111,10 +111,14 @@ ApplicationWindow {
             text: "No cameras found"
         }
     }
-    
+
+    ColorDrawer {
+        id: colorDrawer
+    }
+
     CameraDevice {
         id: cd
-        
+
         onStatusChanged: {
             console.debug("CameraStatus is now: "+status)
             switch (status) {
@@ -126,45 +130,45 @@ ApplicationWindow {
                 break;
             }
         }
-        
+
         onAutoFocusTriggered: {
             console.debug("Autofocusing...")
             setTimedMessage('AutoFocus');
         }
-        
+
         onIsoChanged: {
             console.debug("ISO is:"+iso)
             comboISO.currentIndex=comboISO.indexOfValue(iso)
         }
-        
+
         onShutterSpeedChanged: {
             console.debug("shutterSpeed is:"+shutterSpeed)
             comboShutter.currentIndex=comboShutter.indexOfValue(shutterSpeed)
         }
-        
+
         onApertureChanged: {
             console.debug("Aperture is: "+cd.aperture)
             let tmp=cd.aperture.toFixed(1);
             console.log(tmp)
             comboAperture.currentIndex=comboAperture.indexOfValue(tmp)
         }
-        
+
         onWbChanged: {
             console.debug("WB is:"+wb)
             comboWB.currentIndex=comboWB.indexOfValue(wb)
         }
-        
+
         onTintChanged: {
             spinTint.value=tint
         }
-        
+
         onConnectionFailure: {
             cameraStatus.text="Failed to connect"
         }
-        
+
         property bool connectionReady: cd.connected && cd.status==3
     }
-    
+
     Action {
         id: quitAction
         shortcut: StandardKey.Quit
@@ -186,7 +190,7 @@ ApplicationWindow {
             Qt.quit()
         }
     }
-    
+
     menuBar: MenuBar {
         id: mainMenu
         visible: !smallInterface
@@ -248,7 +252,7 @@ ApplicationWindow {
                 ButtonGroup.group: focusGroup
             }
             MenuSeparator {
-                
+
             }
             MenuItem {
                 id: menuZoomEnabled
@@ -259,6 +263,15 @@ ApplicationWindow {
         }
         Menu {
             title: "&Assists"
+            MenuItem {
+                text: "Color Correction"
+                onClicked: colorDrawer.open()
+            }
+
+            MenuSeparator {
+
+            }
+
             MenuItem {
                 id: menuZebraEnabled
                 text: "&Zebra"
@@ -282,14 +295,14 @@ ApplicationWindow {
             }
         }
     }
-    
+
     ButtonGroup {
         id: focusGroup
         onClicked: (button) => {
-                       
+
                    }
     }
-    
+
     header: ToolBar {
         visible: smallInterface
         RowLayout {
@@ -303,28 +316,28 @@ ApplicationWindow {
                 text: "&Disconnect"
                 enabled: cd.connected
                 onClicked: cd.disconnectFromDevice()
+                icon.name: "stop"
             }
             ToolButton {
                 text: "Play"
                 enabled: cd.connectionReady && !cd.recording && !cd.playing
                 onClicked: cd.play(true);
-                icon.name: "play"
+                icon.name: "media-playback-start"
             }
-            /*
             ToolButton {
-                text: "CCR"
-                enabled: cd.connectionReady
-                onClicked: cd.colorCorrectionReset()
+                text: "Colors"
+                onClicked: colorDrawer.open()
+                icon.name: "color-select"
             }
-            */
             ToolButton {
                 text: "Slate"
                 enabled: cd.connectionReady
                 onClicked: slateDrawer.open()
+                icon.name: "notepad"
             }
         }
     }
-    
+
     Timer {
         id: timerMessageTimer
         interval: 2000
@@ -332,12 +345,12 @@ ApplicationWindow {
         repeat: false
         onTriggered: timedMessage.text=''
     }
-    
+
     function setTimedMessage(msg) {
         timedMessage.text=msg;
         timerMessageTimer.start()
     }
-    
+
     footer: ToolBar {
         RowLayout {
             anchors.fill: parent
@@ -388,7 +401,7 @@ ApplicationWindow {
             Label {
                 text: cd.connectionReady ? 'Take: '+cd.metaTakeNumber : ''
             }
-            
+
             TimeCodeText {
                 id: timeCodeText
                 Layout.preferredWidth: 12*24
@@ -398,7 +411,7 @@ ApplicationWindow {
             }
         }
     }
-    
+
     StackView {
         anchors.fill: parent
         focus: true
@@ -520,22 +533,22 @@ ApplicationWindow {
                     }
                 }
             }
-            
+
             Label {
                 text: "Shutter speed: "+ cd.shutterSpeed
                 visible: !smallInterface
             }
             RowLayout {
                 Layout.fillWidth: true
-                
+
                 ComboBox {
                     id: comboShutter
-                    model: [24,25,30,50,60,100,120,125,160,200,250,500,1000,2000]
+                    model: [24,25,30,48,50,60,75,90,100,120,125,150,160,180,200,250,360,500,725,1000,1450,2000]
                     onActivated: {
                         cd.setShutterSpeed(currentValue)
                     }
                 }
-                
+
                 Slider {
                     id: shutterSpeedSlider
                     Layout.fillWidth: true
@@ -550,7 +563,7 @@ ApplicationWindow {
                     }
                 }
             }
-            
+
             Label {
                 text: "Aperture"
                 visible: !smallInterface
@@ -606,14 +619,14 @@ ApplicationWindow {
                     onClicked: cd.autoAperture()
                 }
             }
-            
+
             Label {
                 text: "ISO: "+cd.iso
                 visible: !smallInterface
             }
             RowLayout {
                 Layout.fillWidth: true
-                
+
                 ComboBox {
                     id: comboISO
                     model: [100,125,160,200,250,320,400,500,640,800,1000,1250,1600,2000,2500,3200,4000,5000,6400,8000,10000,12800,16000,20000,25600]
@@ -622,11 +635,11 @@ ApplicationWindow {
                         cd.setISO(currentValue)
                     }
                 }
-                
+
                 Label {
                     text: "Gain: "+gain.value
                 }
-                
+
                 Slider {
                     id: gain
                     Layout.fillWidth: true
@@ -657,12 +670,12 @@ ApplicationWindow {
                     onClicked: cd.setISO(iso)
                 }
             }
-            
+
             Label {
                 text: "White Balance: "+cd.wb+'K/'+cd.tint
                 visible: !smallInterface
             }
-            
+
             RowLayout {
                 spacing: 4
                 ColumnLayout {
@@ -707,7 +720,7 @@ ApplicationWindow {
                             userMoved=false
                         }
                     }
-                    
+
                 }
                 GridLayout {
                     id: wbButtons
@@ -767,12 +780,12 @@ ApplicationWindow {
                 cd.whiteBalance(button.wb, button.tint)
         }
     }
-    
+
     TableModel {
         id: metadataModel
         TableModelColumn { display: "metadata" }
         TableModelColumn { display: "value" }
-        
+
         rows: [
             {
                 metadata: "Camera ID",
@@ -808,12 +821,12 @@ ApplicationWindow {
             },
         ]
     }
-    
+
     Drawer {
         id: slateDrawer
         width: parent.width/1.5
         height: parent.height
-        
+
         TableView {
             anchors.fill: parent
             columnSpacing: 2
@@ -824,5 +837,5 @@ ApplicationWindow {
             }
         }
     }
-    
+
 }

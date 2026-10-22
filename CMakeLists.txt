@@ -29,6 +29,9 @@ qt_add_qml_module(cpr
     QML_FILES WhiteBalanceButton.qml
     QML_FILES ApertureButton.qml
     QML_FILES ISOButton.qml
+    QML_FILES ColorDrawer.qml
+    QML_FILES ColorSlider.qml
+    QML_FILES ColorInterface.qml
 )
 
 target_link_libraries(cpr PUBLIC
