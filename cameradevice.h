@@ -308,6 +308,7 @@ private:
     bool m_timecodeDisplay=false;
 
     bool m_extpower=false;
+    double m_voltage=0.0;
 
     quint8 m_codec=0;
     quint8 m_codec_variant=0;

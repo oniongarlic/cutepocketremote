@@ -14,6 +14,7 @@ static const QBluetoothUuid IncomingCameraControl("B864E140-76A0-416A-BF30-58765
 static const QBluetoothUuid Timecode("6D8F2110-86F1-41BF-9AFB-451D87E976C8");
 static const QBluetoothUuid CameraStatus("7FE8691D-95DC-4FC5-8ABD-CA74339B51B9");
 static const QBluetoothUuid DeviceName("FFAC0C52-C9FB-41A0-B063-CC76282EB89C");
+static const QBluetoothUuid ProtocolVersion("8f1fd018-b508-456f-8f82-3d392bee2706");
 
 static qint16 mapf(double x, double in_min, double in_max, double out_min, double out_max)
 {
@@ -303,19 +304,27 @@ void CameraDevice::serviceDetailsDiscovered(QLowEnergyService::ServiceState newS
                 qDebug() << "CameraStatus" << m_status;
                 emit statusChanged();
             }
+        } else if (ch.uuid()==IncomingCameraControl) {
+            qDebug() << "Found IncomingCameraControl!" << ch.value().toHex(':');
+        } else if (ch.uuid()==Timecode) {
+            qDebug() << "Found Timecode!" << ch.value().toHex(':');
+        } else if (ch.uuid()==ProtocolVersion) {
+            qDebug() << "Found ProtocolVersion!";
+            QString ccuver=ch.value();
+            qDebug() << "* CCU Version" << ccuver;
         } else {
-            qDebug() << "Unhandled" << ch.uuid();
+            qDebug() << "Unknown Characteristic" << ch.uuid();
         }
 
         uint permission = ch.properties();
         if ((permission & QLowEnergyCharacteristic::Notify)) {
-            qDebug() << "Enabling notifications for " << ch.uuid() << ch.value().toHex(':');
+            qDebug() << "* Enabling notifications for " << ch.uuid() << ch.value().toHex(':');
             service->writeDescriptor(desc, QLowEnergyCharacteristic::CCCDEnableNotification);
         } else if (permission & QLowEnergyCharacteristic::Indicate) {
-            qDebug() << "Enabling indications for " << ch.uuid() << ch.value().toHex(':');
+            qDebug() << "* Enabling indications for " << ch.uuid() << ch.value().toHex(':');
             service->writeDescriptor(desc, QLowEnergyCharacteristic::CCCDEnableIndication);
         } else if (permission & QLowEnergyCharacteristic::Write) {
-            qDebug() << "WriteCharacteristics" << ch.uuid();
+            // qDebug() << "* WriteCharacteristics" << ch.uuid();
         }
     }
 }
@@ -657,12 +666,26 @@ void CameraDevice::handleStatusData(const QByteArray &data)
     {
         uint8_t ticker=data.at(8); // charge/discharge rate ?
         uint16_t voltage=CutePocket::uint16at(data, 9);
-        uint8_t power=data.at(12); // 1b=ac/psu, 0b=volt/psu, 19=volt/battery, 09=no/psu
+        voltage=qFromBigEndian(voltage);
+        uint8_t power=data.at(12);
+        /*
+         *    D / Power
+         * 1b=ac/psu
+         * 1f=volt/psu (charged?)
+         * 0b=volt/psu
+         * 19=volt/battery
+         * 12=volt/battery (charging?)
+         * 02=ac/psu
+         * 09=bat/battery
+         * 0f=ac/psu
+         */
 
         m_extpower=power & 2;
         bool disp=power & 16;
+
+        m_voltage=voltage/1000.0f;
         
-        qDebug() << "Status" << data.toHex(':') << m_extpower << voltage << disp;
+        qDebug() << "Status" << data.toHex(':') << m_extpower << voltage << m_voltage << disp;
     }
         break;
     case 1: // USB-C attach + size ?
