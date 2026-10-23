@@ -41,6 +41,16 @@ static int16_t float2fix(double n)
     return int_part + frac_part;
 }
 
+/* 5.11 fixed point */
+int16_t floatToFixed16(double value)
+{
+    constexpr double scale = 2048.0f;
+
+    value = std::clamp(value, -16.0, 32767.0 / scale);
+
+    return static_cast<int16_t>(std::round(value * scale));
+}
+
 CameraDevice::CameraDevice()
 {
     m_timecode.setHMS(0,0,0,0);
@@ -1230,10 +1240,10 @@ bool CameraDevice::colorControl(uint8_t c, double r, double g, double b, double 
     cmd[6]=0x80;
     cmd[7]=0x00;
 
-    ir=float2fix(r);
-    ig=float2fix(g);
-    ib=float2fix(b);
-    il=float2fix(l);
+    ir=floatToFixed16(r);
+    ig=floatToFixed16(g);
+    ib=floatToFixed16(b);
+    il=floatToFixed16(l);
 
     qDebug() << ir << ig << ib << il;
 
@@ -1252,19 +1262,79 @@ bool CameraDevice::colorControl(uint8_t c, double r, double g, double b, double 
     return writeCameraCommand(cmd);
 }
 
+/**
+ * @brief CameraDevice::colorLift
+ *
+ * Range -2 to 2, default 0
+ *
+ * @param r
+ * @param g
+ * @param b
+ * @param l
+ * @return
+ */
 bool CameraDevice::colorLift(double r, double g, double b, double l) {
+    r=std::clamp(r, -2.0, 2.0);
+    g=std::clamp(g, -2.0, 2.0);
+    b=std::clamp(b, -2.0, 2.0);
+    l=std::clamp(l, -2.0, 2.0);
     return colorControl(0, r, g, b, l);
 }
 
+/**
+ * @brief CameraDevice::colorGamma
+ *
+ * Range -4 to 4, default 0
+ *
+ * @param r
+ * @param g
+ * @param b
+ * @param l
+ * @return
+ */
 bool CameraDevice::colorGamma(double r, double g, double b, double l) {
+    r=std::clamp(r, -4.0, 4.0);
+    g=std::clamp(g, -4.0, 4.0);
+    b=std::clamp(b, -4.0, 4.0);
+    l=std::clamp(l, -4.0, 4.0);
     return colorControl(1, r, g, b, l);
 }
 
+/**
+ * @brief CameraDevice::colorGain
+ *
+ * Range 0 to 16, default 1
+ *
+ * @param r
+ * @param g
+ * @param b
+ * @param l
+ * @return
+ */
 bool CameraDevice::colorGain(double r, double g, double b, double l) {
+    r=std::clamp(r, 0.0, 16.0);
+    g=std::clamp(g, 0.0, 16.0);
+    b=std::clamp(b, 0.0, 16.0);
+    l=std::clamp(l, 0.0, 16.0);
     return colorControl(2, r, g, b, l);
 }
 
+/**
+ * @brief CameraDevice::colorOffset
+ *
+ * Range -8 to 8, default 0
+ *
+ * @param r
+ * @param g
+ * @param b
+ * @param l
+ * @return
+ */
 bool CameraDevice::colorOffset(double r, double g, double b, double l) {
+    r=std::clamp(r, -8.0, 8.0);
+    g=std::clamp(g, -8.0, 8.0);
+    b=std::clamp(b, -8.0, 8.0);
+    l=std::clamp(l, -8.0, 8.0);
     return colorControl(3, r, g, b, l);
 }
 
