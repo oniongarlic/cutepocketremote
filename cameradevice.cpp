@@ -360,7 +360,7 @@ void CameraDevice::handleLensData(const QByteArray &data)
     case 3: // Aperture normalized
         v = CutePocket::uint16at(data, 8); // data[8] + (data[9] << 8);
         qDebug() << "Aperture norm" << data.toHex(':') << v;
-        m_aperture_norm=v/2048;
+        m_aperture_norm=(double)v/2048.0f;
 
         emit apertureNormalizedChanged();
     break;
@@ -1384,12 +1384,12 @@ int CameraDevice::focus() const
     return m_focus;
 }
 
-double CameraDevice::apterture() const
+double CameraDevice::aperture() const
 {
     return m_aperture;
 }
 
-double CameraDevice::aptertureNormalized() const
+double CameraDevice::apertureNormalized() const
 {
     return m_aperture_norm;
 }

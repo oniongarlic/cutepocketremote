@@ -33,7 +33,7 @@ class CameraDevice: public QObject
     Q_PROPERTY(int wb READ wb NOTIFY wbChanged FINAL)
     Q_PROPERTY(int tint READ tint NOTIFY tintChanged FINAL)
 
-    Q_PROPERTY(double aperture READ apterture NOTIFY apertureChanged FINAL)
+    Q_PROPERTY(double aperture READ aperture NOTIFY apertureChanged FINAL)
     Q_PROPERTY(double apertureNormalized READ apertureNormalized NOTIFY apertureNormalizedChanged FINAL)
     
     Q_PROPERTY(int iso READ iso NOTIFY isoChanged)
@@ -98,8 +98,8 @@ public:
 
     int focus() const;
 
-    double apterture() const;
-    double aptertureNormalized() const;
+    double aperture() const;
+    double apertureNormalized() const;
 
     bool playing() const;
     
