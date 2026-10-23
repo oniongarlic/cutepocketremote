@@ -23,7 +23,7 @@ ColumnLayout {
         from: 0
         to: 100
         stepSize: 1
-        onValueChanged: cd.zoom(focusDial.value/100);
+        onValueChanged: cd.setZoom(focusDial.value/100);
         wheelEnabled: true
     }
 }

@@ -28,7 +28,7 @@ ColumnLayout {
         from: -2000
         to: 2000
         stepSize: 10
-        onValueChanged: cd.focus(focusDial.value, false);
+        onValueChanged: cd.setFocus(focusDial.value, false);
         onPressedChanged: if (!pressed) value=0
         wheelEnabled: true
     }

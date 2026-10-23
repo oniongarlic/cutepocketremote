@@ -24,25 +24,25 @@ RowLayout {
             text: "Focus-"
             Layout.fillWidth: true
             Layout.fillHeight: true
-            onClicked: cd.focus(-100);
+            onClicked: cd.setFocus(-100);
         }
         Button {
             text: "Focus+"
             Layout.fillWidth: true
             Layout.fillHeight: true
-            onClicked: cd.focus(100);
+            onClicked: cd.setFocus(100);
         }
         Button {
             text: "Focus--"
             Layout.fillWidth: true
             Layout.fillHeight: true
-            onClicked: cd.focus(-500);
+            onClicked: cd.setFocus(-500);
         }
         Button {
             text: "Focus++"
             Layout.fillWidth: true
             Layout.fillHeight: true
-            onClicked: cd.focus(500);
+            onClicked: cd.setFocus(500);
         }
         Button {
             text: "Auto Focus"
@@ -76,7 +76,7 @@ RowLayout {
                 console.debug("RelFocus: "+focusDial.value)
                 if (focusDial.value==0)
                     return;
-                cd.focus(focusDial.value);
+                cd.setFocus(focusDial.value);
             }
         }
     }

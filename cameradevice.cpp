@@ -333,6 +333,10 @@ void CameraDevice::handleLensData(const QByteArray &data)
         v = CutePocket::uint16at(data, 8);
         
         qDebug() << "Focus norm" <<v << data.toHex(':');
+
+        m_focus = v;
+
+        emit focusChanged();
         break;
     case 1:
         qDebug() << "AutoFocus triggered" << data.toHex(':');
@@ -356,7 +360,9 @@ void CameraDevice::handleLensData(const QByteArray &data)
     case 3: // Aperture normalized
         v = CutePocket::uint16at(data, 8); // data[8] + (data[9] << 8);
         qDebug() << "Aperture norm" << data.toHex(':') << v;
-        m_aperture_norm=v;
+        m_aperture_norm=v/2048;
+
+        emit apertureNormalizedChanged();
     break;
     case 6:
         qDebug() << "OIS" << data.toHex(':');
@@ -923,7 +929,7 @@ bool CameraDevice::autoFocus()
     return writeCameraCommand(cmd);
 }
 
-bool CameraDevice::focus(qint16 focus, bool relative)
+bool CameraDevice::setFocus(qint16 focus, bool relative)
 {
     if (focus < -2048 && focus > 2048)
         return false;
@@ -955,7 +961,7 @@ bool CameraDevice::autoAperture()
     return writeCameraCommand(cmd);
 }
 
-bool CameraDevice::zoom(double zoom)
+bool CameraDevice::setZoom(double zoom)
 {
     if (zoom < 0.0f && zoom > 1.0f)
         return false;
@@ -1373,9 +1379,19 @@ int CameraDevice::zoom() const
     return m_zoom;
 }
 
+int CameraDevice::focus() const
+{
+    return m_focus;
+}
+
 double CameraDevice::apterture() const
 {
     return m_aperture;
+}
+
+double CameraDevice::aptertureNormalized() const
+{
+    return m_aperture_norm;
 }
 
 bool CameraDevice::playing() const

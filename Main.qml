@@ -417,6 +417,11 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignLeft
             }
             Label {
+                id: focus
+                text: cd.connectionReady ? cd.focus : '--'
+                font.pixelSize: smallFontSize
+            }
+            Label {
                 id: zoom
                 text: cd.connectionReady ? cd.zoom : '--'
                 font.pixelSize: smallFontSize
@@ -626,6 +631,10 @@ ApplicationWindow {
                         cd.setAperture(currentValue)
                     }
                 }
+                Label {
+                    text: cd.apertureNormalized.toFixed(2)
+                }
+
                 Slider {
                     id: apertureSlider
                     Layout.fillWidth: true

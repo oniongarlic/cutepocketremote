@@ -34,11 +34,13 @@ class CameraDevice: public QObject
     Q_PROPERTY(int tint READ tint NOTIFY tintChanged FINAL)
 
     Q_PROPERTY(double aperture READ apterture NOTIFY apertureChanged FINAL)
+    Q_PROPERTY(double apertureNormalized READ apertureNormalized NOTIFY apertureNormalizedChanged FINAL)
     
     Q_PROPERTY(int iso READ iso NOTIFY isoChanged)
     
     Q_PROPERTY(int shutterSpeed READ shutterSpeed NOTIFY shutterSpeedChanged FINAL)
 
+    Q_PROPERTY(int focus READ focus NOTIFY focusChanged FINAL)
     Q_PROPERTY(int zoom READ zoom NOTIFY zoomChanged FINAL)
 
     Q_PROPERTY(QTime timecode READ timecode NOTIFY timecodeChanged FINAL)
@@ -94,7 +96,10 @@ public:
 
     int zoom() const;
 
+    int focus() const;
+
     double apterture() const;
+    double aptertureNormalized() const;
 
     bool playing() const;
     
@@ -155,8 +160,8 @@ public slots:
     bool autoWhitebalance();
     bool restoreAutoWhiteBalance();
 
-    bool focus(qint16 focus, bool relative=true);
-    bool zoom(double zoom);
+    bool setFocus(qint16 focus, bool relative=true);
+    bool setZoom(double zoom);
     
     bool playback(bool next);
     bool colorLift(double r, double g, double b, double l);
@@ -205,9 +210,11 @@ Q_SIGNALS:
     void nameChanged();
     
     void autoFocusTriggered();
+    void focusChanged();
     void zoomChanged();
 
     void apertureChanged();
+    void apertureNormalizedChanged();
 
     void playingChanged();
     
@@ -290,6 +297,7 @@ private:
     qint32 m_iso = 100;
     qint32 m_exposure = 0;
     qint16 m_zoom = 0;
+    qint16 m_focus = 0;
     qint16 m_wb = 4600;
     qint16 m_tint = 0;
     qint32 m_shutterSpeed=0;
