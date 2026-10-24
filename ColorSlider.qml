@@ -9,10 +9,30 @@ ColumnLayout {
     property alias to: c.to
     property alias value: c.value
 
+    property alias backgroundColor: bg.color
+    property alias color: l.color
+
+    property double defaultValue;
+
+    signal reset;
+
+    Component.onCompleted: defaultValue=value;
+
     Label {
+        id: l
         Layout.alignment: Qt.AlignHCenter
+        padding: 4
         Layout.fillWidth: true
+        horizontalAlignment: Qt.AlignHCenter
         text: c.value.toFixed(2)
+        background: Rectangle {
+            id: bg
+            color: "transparent"
+        }
+        MouseArea {
+            anchors.fill: parent
+            onDoubleClicked: value=defaultValue
+        }
     }
 
     Button {

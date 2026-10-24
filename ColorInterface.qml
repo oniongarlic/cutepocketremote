@@ -46,11 +46,12 @@ ColumnLayout {
     Label {
         id: ccl
         Layout.fillWidth: true
-        font.bold: true
+        Layout.margins: 4
+        font.bold: true        
     }
 
     Button {
-        text: "Reset"
+        text: "Reset all"
         Layout.fillWidth: true
         onClicked: {
             set(defaultValue, defaultValue, defaultValue, defaultValue);
@@ -67,24 +68,31 @@ ColumnLayout {
             from: ccFrom
             to: ccTo
             value: 0
+            backgroundColor: "red"
+            color: "white"
         }
         ColorSlider {
             id: cg
             from: ccFrom
             to: ccTo
             value: 0
+            backgroundColor: "green"
+            color: "white"
         }
         ColorSlider {
             id: cb
             from: ccFrom
             to: ccTo
             value: 0
+            backgroundColor: "blue"
+            color: "white"
         }
         ColorSlider {
             id: cl
             from: ccFrom
             to: ccTo
             value: 0
+            backgroundColor: "grey"
         }
     }
 }
