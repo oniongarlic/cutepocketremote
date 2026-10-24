@@ -984,7 +984,7 @@ bool CameraDevice::autoAperture()
     return writeCameraCommand(cmd);
 }
 
-bool CameraDevice::setVideoMode(uint fps, bool rate, bool interlaced)
+bool CameraDevice::setVideoMode(uint fps, uint dimension, bool rate, bool interlaced)
 {
     QByteArray cmd(12, 0);
     cmd[0]=0xff; // Destination
@@ -997,8 +997,16 @@ bool CameraDevice::setVideoMode(uint fps, bool rate, bool interlaced)
     cmd[7]=0x00;
     cmd[8]=fps;
     cmd[9]=rate ? 1 : 0;
-    cmd[10]=interlaced ? 1 : 0;
-    cmd[11]=0x00;
+    cmd[10]=dimension;
+    /*
+        0 = NTSC, 1 = PAL, 2 = 720,
+        3 = 1080, 4 = 2kDCI, 5 = 2k16:9,
+        6 = UHD, 7 = 3k Anamorphic,
+        8 = 4k DCI, 9 = 4k 16:9,
+        10 = 4.6k 2.4:1, 11 = 4.6k
+    */
+    cmd[11]=interlaced ? 1 : 0;
+    cmd[12]=0x00;
 
     return writeCameraCommand(cmd);
 }

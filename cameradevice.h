@@ -139,7 +139,7 @@ public slots:
 
     bool setCameraName(const QString name);
 
-    bool setVideoMode(uint fps, bool rate, bool interlaced=false);
+    bool setVideoMode(uint fps, uint dimension, bool rate, bool interlaced=false);
 
     bool autoFocus();
     bool autoAperture();
