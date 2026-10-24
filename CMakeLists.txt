@@ -32,6 +32,8 @@ qt_add_qml_module(cpr
     QML_FILES ColorDrawer.qml
     QML_FILES ColorSlider.qml
     QML_FILES ColorInterface.qml
+    QML_FILES FpsButton.qml
+    QML_FILES ShutterSpeedButton.qml
 )
 
 target_link_libraries(cpr PUBLIC
