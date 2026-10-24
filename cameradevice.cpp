@@ -996,8 +996,8 @@ bool CameraDevice::setVideoMode(uint fps, uint dimension, bool rate, bool interl
     cmd[6]=0x01;
     cmd[7]=0x00;
     cmd[8]=fps;
-    cmd[9]=rate ? 1 : 0;
-    cmd[10]=dimension;
+    cmd[9]=rate ? 0x01 : 0x00;
+    cmd[10]=std::clamp(dimension, (uint)0, (uint)11);
     /*
         0 = NTSC, 1 = PAL, 2 = 720,
         3 = 1080, 4 = 2kDCI, 5 = 2k16:9,
