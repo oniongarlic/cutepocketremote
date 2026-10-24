@@ -132,12 +132,14 @@ public:
     QString metaLensFilter() const { return m_meta_lens_filter; }
     
     QString metaSlateTarget() const { return m_meta_slate_target; }
-        
+
 public slots:
     void connectDevice(QBluetoothDeviceInfo *device);
     void disconnectFromDevice();
 
     bool setCameraName(const QString name);
+
+    bool setVideoMode(uint fps, bool rate, bool interlaced=false);
 
     bool autoFocus();
     bool autoAperture();

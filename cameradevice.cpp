@@ -984,6 +984,25 @@ bool CameraDevice::autoAperture()
     return writeCameraCommand(cmd);
 }
 
+bool CameraDevice::setVideoMode(uint fps, bool rate, bool interlaced)
+{
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x04; // Length
+
+    cmd[4]=0x01; // Category
+    cmd[5]=0x00; // Param
+
+    cmd[6]=0x01;
+    cmd[7]=0x00;
+    cmd[8]=fps;
+    cmd[9]=rate ? 1 : 0;
+    cmd[10]=interlaced ? 1 : 0;
+    cmd[11]=0x00;
+
+    return writeCameraCommand(cmd);
+}
+
 bool CameraDevice::setZoom(double zoom)
 {
     if (zoom < 0.0f && zoom > 1.0f)
