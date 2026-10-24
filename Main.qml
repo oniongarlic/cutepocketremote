@@ -611,6 +611,18 @@ ApplicationWindow {
                         cd.setShutterSpeed(value)
                     }
                 }
+                ShutterSpeedButton {
+                    shutter: 50
+                    onClicked: cd.setShutterSpeed(shutter)
+                }
+                ShutterSpeedButton {
+                    shutter: 60
+                    onClicked: cd.setShutterSpeed(shutter)
+                }
+                ShutterSpeedButton {
+                    shutter: 90
+                    onClicked: cd.setShutterSpeed(shutter)
+                }
             }
 
             Label {
