@@ -10,17 +10,19 @@ set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/icon.rc")
 
 qt_standard_project_setup(REQUIRES 6.6)
 
+include_directories(src)
+
 qt_add_executable(cpr
-    main.cpp
+    src/main.cpp
+    src/cameradiscovery.h src/cameradiscovery.cpp
+    src/cameradevice.h src/cameradevice.cpp
+    src/cameratypes.h
     ${app_icon_resource_windows}
 )
 
 qt_add_qml_module(cpr
     URI CutePocketRemote
-    VERSION 1.0    
-    SOURCES cameradiscovery.h cameradiscovery.cpp
-    SOURCES cameradevice.h cameradevice.cpp
-    SOURCES cameratypes.h    
+    VERSION 1.0        
     QML_FILES qml/Main.qml
     QML_FILES qml/TimeCodeText.qml
     QML_FILES qml/RelativeFocus.qml
