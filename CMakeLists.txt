@@ -17,23 +17,23 @@ qt_add_executable(cpr
 
 qt_add_qml_module(cpr
     URI CutePocketRemote
-    VERSION 1.0
-    QML_FILES Main.qml
-    SOURCES cameradevice.h cameradevice.cpp
-    SOURCES cameratypes.h
+    VERSION 1.0    
     SOURCES cameradiscovery.h cameradiscovery.cpp
-    QML_FILES TimeCodeText.qml
-    QML_FILES RelativeFocus.qml
-    QML_FILES AbsoluteFocus.qml
-    QML_FILES Zoom.qml
-    QML_FILES WhiteBalanceButton.qml
-    QML_FILES ApertureButton.qml
-    QML_FILES ISOButton.qml
-    QML_FILES ColorDrawer.qml
-    QML_FILES ColorSlider.qml
-    QML_FILES ColorInterface.qml
-    QML_FILES FpsButton.qml
-    QML_FILES ShutterSpeedButton.qml
+    SOURCES cameradevice.h cameradevice.cpp
+    SOURCES cameratypes.h    
+    QML_FILES qml/Main.qml
+    QML_FILES qml/TimeCodeText.qml
+    QML_FILES qml/RelativeFocus.qml
+    QML_FILES qml/AbsoluteFocus.qml
+    QML_FILES qml/Zoom.qml
+    QML_FILES qml/WhiteBalanceButton.qml
+    QML_FILES qml/ApertureButton.qml
+    QML_FILES qml/ISOButton.qml
+    QML_FILES qml/ColorDrawer.qml
+    QML_FILES qml/ColorSlider.qml
+    QML_FILES qml/ColorInterface.qml
+    QML_FILES qml/FpsButton.qml
+    QML_FILES qml/ShutterSpeedButton.qml
 )
 
 target_link_libraries(cpr PUBLIC
