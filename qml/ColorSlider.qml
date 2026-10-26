@@ -38,7 +38,8 @@ ColumnLayout {
     Button {
         text: "+"
         Layout.alignment: Qt.AlignHCenter
-        Layout.maximumWidth: c.width*2
+        Layout.minimumWidth: c.width*2
+        Layout.maximumWidth: c.width*3
         onClicked: c.increase()
     }
 
@@ -57,7 +58,8 @@ ColumnLayout {
 
     Button {
         text: "-"
-        Layout.maximumWidth: c.width*2
+        Layout.minimumWidth: c.width*2
+        Layout.maximumWidth: c.width*3
         Layout.alignment: Qt.AlignHCenter
         onClicked: c.decrease()
     }
