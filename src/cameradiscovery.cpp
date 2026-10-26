@@ -118,6 +118,7 @@ void CameraDiscovery::addCameraDevice(const QBluetoothDeviceInfo &info)
     
     qDebug() << "Found BM camera service!";
     qDebug() << info.address() << info.name() << info.rssi() << info.isCached();
+    qDebug() << "Services" << uuids;
     
 // #ifndef Q_OS_WIN32
 //     if (info.rssi()==0) {

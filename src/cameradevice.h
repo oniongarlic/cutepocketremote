@@ -164,6 +164,9 @@ public slots:
 
     bool setFocus(qint16 focus, bool relative=true);
     bool setZoom(double zoom);
+
+    bool setDRM(qint8 drm);
+    bool setLUT(qint8 lut, bool enabled);
     
     bool playback(bool next);
     bool colorLift(double r, double g, double b, double l);
@@ -173,6 +176,8 @@ public slots:
 
     bool setColorbar(int sec);
     bool setDisplay(bool tc);
+
+    bool setSpeakerLevel(double level);
     
 private slots:
     void scanServices(const QString &address);
@@ -217,6 +222,9 @@ Q_SIGNALS:
 
     void apertureChanged();
     void apertureNormalizedChanged();
+
+    void lutChanged(int lut, bool enabled);
+    void drmChanged(int drm);
 
     void playingChanged();
     
@@ -306,8 +314,14 @@ private:
     double m_aperture=0.0;
     double m_aperture_norm=0.0;
     qint8 m_autoExposureMode=1;
+
+    qint8 m_drm=0;
+    qint8 m_lut=0;
+    bool m_lut_enabled=false;
     
     bool m_timecodeDisplay=false;
+
+    double m_audio_speaker_level=0.0;
 
     bool m_extpower=false;
     double m_voltage=0.0;

@@ -424,6 +424,8 @@ void CameraDevice::handleVideoData(const QByteArray &data)
         break;
     case 7:
         qDebug() << "DRM" << data.toHex(':');
+        m_drm=data.at(8);
+        emit drmChanged(m_drm);
         break;
     case 8:
         qDebug() << "Sharpening" << data.toHex(':');
@@ -453,6 +455,10 @@ void CameraDevice::handleVideoData(const QByteArray &data)
         break;
     case 15:
         qDebug() << "LUT" << data.toHex(':');
+        m_lut=data.at(8);
+        m_lut_enabled=static_cast<bool>(data.at(9));
+
+        emit lutChanged(m_lut, m_lut_enabled);
         break;
     case 16:
         qDebug() << "ND" << data.toHex(':');
@@ -468,6 +474,9 @@ void CameraDevice::handleVideoData(const QByteArray &data)
  */
 void CameraDevice::handleAudioData(const QByteArray &data)
 {
+    uint16_t v,x;
+    uint8_t t;
+
     switch (data.at(5)) {
     case 1:
         qDebug() << "Headphone level" << data.toHex(':');
@@ -476,10 +485,20 @@ void CameraDevice::handleAudioData(const QByteArray &data)
         qDebug() << "Headphone program mix" << data.toHex(':');
         break;
     case 3:
-        qDebug() << "Input type" << data.toHex(':');
+        qDebug() << "Speaker level" << data.toHex(':');
+        v = CutePocket::uint16at(data, 8);
+        m_audio_speaker_level=(double)v/2048.0f;
+        qDebug() << m_audio_speaker_level;
         break;
     case 4:
+        qDebug() << "Input type" << data.toHex(':');
+        t=data.at(8);
+        break;
+    case 5:
         qDebug() << "Input levels" << data.toHex(':');
+        v = CutePocket::uint16at(data, 8);
+        x = CutePocket::uint16at(data, 10);
+        qDebug() << v << x;
         break;
     case 6:
         qDebug() << "Phantom power" << data.toHex(':');
@@ -1188,6 +1207,46 @@ bool CameraDevice::setGain(qint8 gain)
     return writeCameraCommand(cmd);
 }
 
+bool CameraDevice::setDRM(qint8 drm)
+{
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x05; // Length
+    cmd[4]=0x01; // Category
+    cmd[5]=0x07; // Param
+    cmd[6]=0x01;
+    cmd[8]=drm;
+
+    return writeCameraCommand(cmd);
+}
+
+bool CameraDevice::setLUT(qint8 lut, bool enabled)
+{
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff; // Destination
+    cmd[1]=0x06; // Length
+    cmd[4]=0x01; // Category
+    cmd[5]=0x0f; // Param
+    cmd[6]=0x01;
+    cmd[8]=std::clamp(lut, (qint8)0, (qint8)3);
+    cmd[9]=enabled ? 1 : 0;
+
+    return writeCameraCommand(cmd);
+}
+
+bool CameraDevice::setSpeakerLevel(double level)
+{
+    QByteArray cmd(12, 0);
+    cmd[0]=0xff;
+    cmd[1]=0x05;
+    cmd[4]=0x04;
+    cmd[5]=0x07;
+    cmd[6]=0x80;
+    cmd[8]=floatToFixed16(std::clamp(level, 0.0, 1.0));
+
+    return writeCameraCommand(cmd);
+}
+
 bool CameraDevice::colorCorrectionReset()
 {
     QByteArray cmd(8, 0);
@@ -1253,7 +1312,6 @@ bool CameraDevice::setColorbar(int sec) {
     cmd[4]=0x04;
     cmd[5]=0x04;
     cmd[6]=0x01;
-    cmd[6]=0x02;
     cmd[8]=qBound(0, sec, 30);
 
     return writeCameraCommand(cmd);
@@ -1270,7 +1328,6 @@ bool CameraDevice::setDisplay(bool tc) {
     cmd[4]=0x04;
     cmd[5]=0x07;
     cmd[6]=0x01;
-    cmd[6]=0x02;
     cmd[8]=tc ? 1 : 0;
     
     return writeCameraCommand(cmd);

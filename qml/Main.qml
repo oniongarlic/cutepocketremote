@@ -305,9 +305,19 @@ ApplicationWindow {
         }
         Menu {
             title: "&Assists"
+            enabled: cd.connected
             MenuItem {
                 text: "Color Correction"
                 onClicked: colorDrawer.open()
+            }
+
+            MenuSeparator {
+
+            }
+
+            MenuItem {
+                text: "Color bar"
+                onClicked: cd.setColorbar(10);
             }
 
             MenuSeparator {
@@ -334,6 +344,42 @@ ApplicationWindow {
                 enabled: false
                 checkable: true
                 checked: false
+            }
+        }
+        Menu {
+            title: "&DRM"
+            enabled: cd.connected
+            MenuItem {
+                text: "Film"
+                onClicked: cd.setDRM(0);
+            }
+            MenuItem {
+                text: "Video"
+                onClicked: cd.setDRM(1);
+            }
+            MenuItem {
+                text: "Extended video"
+                onClicked: cd.setDRM(2);
+            }
+        }
+        Menu {
+            title: "&LUT"
+            enabled: cd.connected
+            MenuItem {
+                text: "None"
+                onClicked: cd.setLUT(0, 1);
+            }
+            MenuItem {
+                text: "Custom"
+                onClicked: cd.setLUT(1, 1);
+            }
+            MenuItem {
+                text: "Film to video"
+                onClicked: cd.setLUT(2, 1);
+            }
+            MenuItem {
+                text: "Film to Extended"
+                onClicked: cd.setLUT(3, 1);
             }
         }
     }
