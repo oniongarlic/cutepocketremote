@@ -92,7 +92,7 @@ ColumnLayout {
             from: ccFrom
             to: ccTo
             value: 0
-            backgroundColor: "grey"
+            backgroundColor: "lightgrey"
         }
     }
 }
